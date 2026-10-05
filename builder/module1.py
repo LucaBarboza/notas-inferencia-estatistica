@@ -121,8 +121,11 @@ def get_module1_html():
             <div class="dist-grid">
                 <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\theta \\in [0, 1]$ (probabilidade de sucesso)</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in \\{0, 1\\}$</div>
-                <div class="dist-grid-item"><span class="label">Função de Probabilidade</span> $p(x \\mid \\theta) = \\theta^x (1-\\theta)^{1-x}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = \\theta$, $\\Var(X) = \\theta(1-\\theta)$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função de Probabilidade (F.P.)</span>
+                    <div class="formula">$$p(x \\mid \\theta) = \\theta^x (1-\\theta)^{1-x}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Modelagem de um único ensaio com resultado binário (sucesso/fracasso, doente/sadio, sim/não).</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> É o bloco atômico da verossimilhança para ensaios binários. Seu conjugado natural para $\\theta$ é a distribuição Beta.</div>
@@ -137,8 +140,11 @@ def get_module1_html():
             <div class="dist-grid">
                 <div class="dist-grid-item"><span class="label">Parâmetros</span> $n \\in \\mathbb{N}$ (fixado), $\\theta \\in [0, 1]$</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in \\{0, 1, \\dots, n\\}$</div>
-                <div class="dist-grid-item"><span class="label">Função de Probabilidade</span> $p(x \\mid \\theta) = \\binom{n}{x} \\theta^x (1-\\theta)^{n-x}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = n\\theta$, $\\Var(X) = n\\theta(1-\\theta)$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função de Probabilidade (F.P.)</span>
+                    <div class="formula">$$p(x \\mid \\theta) = \\binom{n}{x} \\theta^x (1-\\theta)^{n-x}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Contagem do total de sucessos em $n$ ensaios de Bernoulli independentes com probabilidade constante $\\theta$.</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Forma o par conjugado clássico <strong>Beta-Binomial</strong>. A estatística suficiente para uma amostra de Bernoullis é a soma $T(x) = \\sum x_i \\sim \\text{Binomial}(n, \\theta)$.</div>
@@ -153,8 +159,11 @@ def get_module1_html():
             <div class="dist-grid">
                 <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\lambda > 0$ (taxa média de ocorrência)</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in \\{0, 1, 2, \\dots\\}$</div>
-                <div class="dist-grid-item"><span class="label">Função de Probabilidade</span> $p(x \\mid \\lambda) = \\frac{e^{-\\lambda} \\lambda^x}{x!}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = \\lambda$, $\\Var(X) = \\lambda$ (equidispersão)</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função de Probabilidade (F.P.)</span>
+                    <div class="formula">$$p(x \\mid \\lambda) = \\frac{e^{-\\lambda} \\lambda^x}{x!}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Contagem de eventos raros que ocorrem em um intervalo contínuo de tempo ou espaço sob taxa constante.</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Forma o par conjugado <strong>Gama-Poisson</strong>. A estatística suficiente para uma amostra $x_1, \\dots, x_n$ é $T(x) = \\sum_{i=1}^n x_i$.</div>
@@ -168,9 +177,12 @@ def get_module1_html():
             </div>
             <div class="dist-grid">
                 <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\theta \\in (0, 1]$ (probabilidade de sucesso)</div>
-                <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in \\{0, 1, 2, \\dots\\}$ (número de fracassos antes do 1º sucesso)</div>
-                <div class="dist-grid-item"><span class="label">Função de Probabilidade</span> $p(x \\mid \\theta) = \\theta (1-\\theta)^x$</div>
+                <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in \\{0, 1, 2, \\dots\\}$ (fracassos até o 1º sucesso)</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = \\frac{1-\\theta}{\\theta}$, $\\Var(X) = \\frac{1-\\theta}{\\theta^2}$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função de Probabilidade (F.P.)</span>
+                    <div class="formula">$$p(x \\mid \\theta) = \\theta (1-\\theta)^x$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Modelagem do tempo de espera até o primeiro sucesso em ensaios de Bernoulli independentes. Possui a propriedade discreta de perda de memória.</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Como a verossimilhança é proporcional a $\\theta^n (1-\\theta)^{\\sum x_i}$, a priori conjugada para $\\theta$ também é a distribuição Beta.</div>
@@ -183,10 +195,13 @@ def get_module1_html():
                 <span class="dist-badge badge-discrete">Discreta</span>
             </div>
             <div class="dist-grid">
-                <div class="dist-grid-item"><span class="label">Parâmetros</span> $r > 0$ (número de sucessos almejados), $\\theta \\in (0, 1]$</div>
-                <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in \\{0, 1, 2, \\dots\\}$ (número de fracassos até obter $r$ sucessos)</div>
-                <div class="dist-grid-item"><span class="label">Função de Probabilidade</span> $p(x \\mid \\theta) = \\binom{x+r-1}{x} \\theta^r (1-\\theta)^x$</div>
+                <div class="dist-grid-item"><span class="label">Parâmetros</span> $r > 0$ (sucessos almejados), $\\theta \\in (0, 1]$</div>
+                <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in \\{0, 1, 2, \\dots\\}$ (fracassos até obter $r$ sucessos)</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = \\frac{r(1-\\theta)}{\\theta}$, $\\Var(X) = \\frac{r(1-\\theta)}{\\theta^2} > E[X]$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função de Probabilidade (F.P.)</span>
+                    <div class="formula">$$p(x \\mid \\theta) = \\binom{x+r-1}{x} \\theta^r (1-\\theta)^x$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Generalização da Geométrica para $r$ sucessos, ou para modelar contagens com <em>superdispersão</em> (onde a variância excede a média, violando a Poisson).</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Surge naturalmente como a <strong>distribuição preditiva</strong> do modelo conjugado Gama-Poisson.</div>
@@ -199,10 +214,13 @@ def get_module1_html():
                 <span class="dist-badge badge-discrete">Discreta</span>
             </div>
             <div class="dist-grid">
-                <div class="dist-grid-item"><span class="label">Parâmetros</span> $N$ (tamanho populacional), $K$ (sucessos na população), $n$ (tamanho amostral)</div>
+                <div class="dist-grid-item"><span class="label">Parâmetros</span> $N$ (população), $K$ (sucessos na pop.), $n$ (amostra)</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in \\{\\max(0, n-(N-K)), \\dots, \\min(n, K)\\}$</div>
-                <div class="dist-grid-item"><span class="label">Função de Probabilidade</span> $p(x) = \\frac{\\binom{K}{x}\\binom{N-K}{n-x}}{\\binom{N}{n}}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = n\\frac{K}{N}$, $\\Var(X) = n\\frac{K}{N}\\left(1-\\frac{K}{N}\\right)\\left(\\frac{N-n}{N-1}\\right)$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função de Probabilidade (F.P.)</span>
+                    <div class="formula">$$p(x) = \\frac{\\binom{K}{x}\\binom{N-K}{n-x}}{\\binom{N}{n}}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Amostragem <strong>sem reposição</strong> em populações finitas. O termo $\\frac{N-n}{N-1}$ atua como o fator de correção de população finita.</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Utilizada na estimação de tamanhos populacionais desconhecidos $N$ (problema de captura-recaptura) ou de itens defeituosos $K$.</div>
@@ -216,9 +234,12 @@ def get_module1_html():
             </div>
             <div class="dist-grid">
                 <div class="dist-grid-item"><span class="label">Parâmetros</span> $n$ (ensaios), $\\boldsymbol{\\theta} = (\\theta_1, \\dots, \\theta_k)$ com $\\sum \\theta_j = 1$</div>
-                <div class="dist-grid-item"><span class="label">Suporte</span> $\\mathbf{x} = (x_1, \\dots, x_k) \\in \\mathbb{N}^k$ tal que $\\sum x_j = n$</div>
-                <div class="dist-grid-item"><span class="label">Função de Probabilidade</span> $p(\\mathbf{x} \\mid \\boldsymbol{\\theta}) = \\frac{n!}{x_1! \\dots x_k!} \\prod_{j=1}^k \\theta_j^{x_j}$</div>
-                <div class="dist-grid-item"><span class="label">Momentos</span> $E[X_j] = n\\theta_j$, $\\Var(X_j) = n\\theta_j(1-\\theta_j)$, $\\Cov(X_i, X_j) = -n\\theta_i \\theta_j$</div>
+                <div class="dist-grid-item"><span class="label">Suporte</span> $\\mathbf{x} = (x_1, \\dots, x_k) \\in \\mathbb{N}^k$ com $\\sum x_j = n$</div>
+                <div class="dist-grid-item"><span class="label">Momentos</span> $E[X_j] = n\\theta_j$, $\\Var(X_j) = n\\theta_j(1-\\theta_j)$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função de Probabilidade (F.P.)</span>
+                    <div class="formula">$$p(\\mathbf{x} \\mid \\boldsymbol{\\theta}) = \\frac{n!}{x_1! \\dots x_k!} \\prod_{j=1}^k \\theta_j^{x_j}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Generalização da Binomial para ensaios independentes com mais de dois desfechos possíveis mutuamente exclusivos (dados categóricos multivariados).</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Forma o par conjugado multivariado canônico <strong>Dirichlet-Multinomial</strong>.</div>
@@ -236,8 +257,11 @@ def get_module1_html():
             <div class="dist-grid">
                 <div class="dist-grid-item"><span class="label">Parâmetros</span> $a, b \\in \\mathbb{R}$ com $a < b$</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in [a, b]$</div>
-                <div class="dist-grid-item"><span class="label">Função Densidade</span> $f(x) = \\frac{1}{b-a}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = \\frac{a+b}{2}$, $\\Var(X) = \\frac{(b-a)^2}{12}$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função Densidade de Probabilidade (F.D.P.)</span>
+                    <div class="formula">$$f(x) = \\frac{1}{b-a}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Quando uma variável contínua está estritamente restrita a um intervalo finito e não há nenhuma preferência por qualquer sub-região.</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Base da clássica <em>priori uniforme de Bayes-Laplace</em> para parâmetros limitados (ex: $\\theta \\sim U(0, 1)$).</div>
@@ -252,8 +276,11 @@ def get_module1_html():
             <div class="dist-grid">
                 <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\lambda > 0$ (taxa)</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in [0, \\infty)$</div>
-                <div class="dist-grid-item"><span class="label">Função Densidade</span> $f(x \\mid \\lambda) = \\lambda e^{-\\lambda x}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = \\frac{1}{\\lambda}$, $\\Var(X) = \\frac{1}{\\lambda^2}$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função Densidade de Probabilidade (F.D.P.)</span>
+                    <div class="formula">$$f(x \\mid \\lambda) = \\lambda e^{-\\lambda x}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Modelagem de intervalos de tempo contínuos entre ocorrências de eventos de Poisson. Possui a propriedade única de <em>perda de memória contínua</em>: $P(X > s + t \\mid X > s) = P(X > t)$.</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Caso particular de $\\text{Gama}(1, \\lambda)$. Sua priori conjugada para o parâmetro de taxa $\\lambda$ é a distribuição Gama.</div>
@@ -268,8 +295,11 @@ def get_module1_html():
             <div class="dist-grid">
                 <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\alpha > 0$ (forma), $\\beta > 0$ (taxa)</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in (0, \\infty)$</div>
-                <div class="dist-grid-item"><span class="label">Função Densidade</span> $f(x \\mid \\alpha, \\beta) = \\frac{\\beta^\\alpha}{\\Gamma(\\alpha)} x^{\\alpha-1} e^{-\\beta x}$</div>
-                <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = \\frac{\\alpha}{\\beta}$, $\\Var(X) = \\frac{\\alpha}{\\beta^2}$</div>
+                <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = \\frac{alpha}{\\beta}$, $\\Var(X) = \\frac{\\alpha}{\\beta^2}$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função Densidade de Probabilidade (F.D.P.)</span>
+                    <div class="formula">$$f(x \\mid \\alpha, \\beta) = \\frac{\\beta^\\alpha}{\\Gamma(\\alpha)} x^{\\alpha-1} e^{-\\beta x}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Variáveis positivas contínuas com assimetria à direita (tempos de sobrevivência, custos, precipitação pluviométrica).</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Peça-chave da inferência bayesiana! Atua como a <strong>priori conjugada padrão para parâmetros de taxa da Poisson</strong> e para a <strong>precisão $\\phi = 1/\\sigma^2$ da distribuição Normal</strong>.</div>
@@ -284,8 +314,11 @@ def get_module1_html():
             <div class="dist-grid">
                 <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\nu > 0$ (graus de liberdade)</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in (0, \\infty)$</div>
-                <div class="dist-grid-item"><span class="label">Função Densidade</span> $f(x) = \\frac{1}{2^{\\nu/2} \\Gamma(\\nu/2)} x^{(\\nu/2)-1} e^{-x/2}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = \\nu$, $\\Var(X) = 2\\nu$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função Densidade de Probabilidade (F.D.P.)</span>
+                    <div class="formula">$$f(x) = \\frac{1}{2^{\\nu/2} \\Gamma(\\nu/2)} x^{(\\nu/2)-1} e^{-x/2}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Soma dos quadrados de $\\nu$ variáveis normais padrão independentes ($X = \\sum_{i=1}^\\nu Z_i^2$).</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> É o caso especial $\\text{Gama}(\\alpha = \\nu/2, \\beta = 1/2)$, fundamental nas distribuições a posteriori de variâncias sob prioris não informativas.</div>
@@ -300,8 +333,11 @@ def get_module1_html():
             <div class="dist-grid">
                 <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\alpha > 0, \\beta > 0$ (hiperparâmetros de forma)</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $\\theta \\in (0, 1)$</div>
-                <div class="dist-grid-item"><span class="label">Função Densidade</span> $f(\\theta) = \\frac{1}{B(\\alpha, \\beta)} \\theta^{\\alpha-1} (1-\\theta)^{\\beta-1}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[\\theta] = \\frac{\\alpha}{\\alpha+\\beta}$, $\\Var(\\theta) = \\frac{\\alpha\\beta}{(\\alpha+\\beta)^2(\\alpha+\\beta+1)}$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função Densidade de Probabilidade (F.D.P.)</span>
+                    <div class="formula">$$f(\\theta) = \\frac{1}{B(\\alpha, \\beta)} \\theta^{\\alpha-1} (1-\\theta)^{\\beta-1}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Modelagem flexível de probabilidades, proporções ou taxas contidas no intervalo $(0,1)$. Dependendo de $\\alpha$ e $\\beta$, adquire forma de U, uniforme, sino simétrico ou assimétrico.</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> A <strong>priori conjugada canônica para probabilidades de sucesso</strong> em modelos Bernoulli e Binomial.</div>
@@ -314,10 +350,13 @@ def get_module1_html():
                 <span class="dist-badge badge-continuous">Contínua</span>
             </div>
             <div class="dist-grid">
-                <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\mu \\in \\mathbb{R}$ (média), $\\sigma^2 > 0$ (variância) ou $\\tau = 1/\\sigma^2$ (precisão)</div>
+                <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\mu \\in \\mathbb{R}$ (média), $\\sigma^2 > 0$ ou $\\tau = 1/\\sigma^2$ (precisão)</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in (-\\infty, \\infty)$</div>
-                <div class="dist-grid-item"><span class="label">Função Densidade</span> $f(x \\mid \\mu, \\tau) = \\sqrt{\\frac{\\tau}{2\\pi}} \\exp\\left\\{ -\\frac{\\tau}{2}(x - \\mu)^2 \\right\\}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = \\mu$, $\\Var(X) = \\sigma^2 = \\tau^{-1}$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função Densidade de Probabilidade (F.D.P.)</span>
+                    <div class="formula">$$f(x \\mid \\mu, \\tau) = \\sqrt{\\frac{\\tau}{2\\pi}} \\exp\\left\\{ -\\frac{\\tau}{2}(x - \\mu)^2 \\right\\}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Fenômenos biológicos, físicos e erros de medição resultantes da soma de múltiplos efeitos infinitesimais (Teorema Central do Limite).</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Conjugada com relação à média quando a variância é conhecida. A parametrização por precisão $\\tau$ simplifica enormemente a álgebra bayesiana.</div>
@@ -330,10 +369,13 @@ def get_module1_html():
                 <span class="dist-badge badge-continuous">Contínua</span>
             </div>
             <div class="dist-grid">
-                <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\boldsymbol{\\mu} \\in \\mathbb{R}^p$ (vetor de médias), $\\boldsymbol{\\Sigma} \\in \\mathbb{R}^{p \\times p}$ (covariância positiva definida)</div>
+                <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\boldsymbol{\\mu} \\in \\mathbb{R}^p$ (média), $\\boldsymbol{\\Sigma} \\in \\mathbb{R}^{p \\times p}$ (covariância)</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $\\mathbf{x} \\in \\mathbb{R}^p$</div>
-                <div class="dist-grid-item"><span class="label">Função Densidade</span> $f(\\mathbf{x}) = (2\\pi)^{-p/2} |\\boldsymbol{\\Sigma}|^{-1/2} \\exp\\left\\{ -\\frac{1}{2}(\\mathbf{x}-\\boldsymbol{\\mu})'\\boldsymbol{\\Sigma}^{-1}(\\mathbf{x}-\\boldsymbol{\\mu}) \\right\\}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[\\mathbf{X}] = \\boldsymbol{\\mu}$, $\\Cov(\\mathbf{X}) = \\boldsymbol{\\Sigma}$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função Densidade de Probabilidade (F.D.P.)</span>
+                    <div class="formula">$$f(\\mathbf{x}) = (2\\pi)^{-p/2} |\\boldsymbol{\\Sigma}|^{-1/2} \\exp\\left\\{ -\\frac{1}{2}(\\mathbf{x}-\\boldsymbol{\\mu})'\\boldsymbol{\\Sigma}^{-1}(\\mathbf{x}-\\boldsymbol{\\mu}) \\right\\}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Modelagem conjunta de vetores correlacionados contínuos.</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Base teórica da regressão linear múltipla bayesiana e processos gaussianos. Atua como priori conjugada para os coeficientes de regressão $\\boldsymbol{\\beta}$.</div>
@@ -346,10 +388,13 @@ def get_module1_html():
                 <span class="dist-badge badge-continuous">Contínua</span>
             </div>
             <div class="dist-grid">
-                <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\nu > 0$ (graus de liberdade), $\\mu \\in \\mathbb{R}$ (locação), $\\sigma^2 > 0$ (escala)</div>
+                <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\nu > 0$ (graus de lib.), $\\mu \\in \\mathbb{R}$ (locação), $\\sigma^2 > 0$ (escala)</div>
                 <div class="dist-grid-item"><span class="label">Suporte</span> $x \\in (-\\infty, \\infty)$</div>
-                <div class="dist-grid-item"><span class="label">Função Densidade</span> $f(x) = \\frac{\\Gamma((\\nu+1)/2)}{\\Gamma(\\nu/2)\\sqrt{\\pi \\nu} \\sigma} \\left[ 1 + \\frac{1}{\\nu}\\left(\\frac{x-\\mu}{\\sigma}\\right)^2 \\right]^{-(\\nu+1)/2}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[X] = \\mu$ (se $\\nu > 1$), $\\Var(X) = \\sigma^2 \\frac{\\nu}{\\nu-2}$ (se $\\nu > 2$)</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função Densidade de Probabilidade (F.D.P.)</span>
+                    <div class="formula">$$f(x) = \\frac{\\Gamma((\\nu+1)/2)}{\\Gamma(\\nu/2)\\sqrt{\\pi \\nu} \\sigma} \\left[ 1 + \\frac{1}{\\nu}\\left(\\frac{x-\\mu}{\\sigma}\\right)^2 \\right]^{-(\\nu+1)/2}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> Amostras pequenas de populações normais com variância desconhecida, ou quando se deseja modelagem robusta a valores discrepantes (<em>outliers</em>) devido às caudas pesadas.</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Surge analiticamente como a <strong>distribuição a posteriori marginal da média $\\mu$</strong> quando a variância $\\sigma^2$ é integrada (marginalizada) a partir da Normal-Gama.</div>
@@ -363,9 +408,12 @@ def get_module1_html():
             </div>
             <div class="dist-grid">
                 <div class="dist-grid-item"><span class="label">Parâmetros</span> $\\boldsymbol{\\alpha} = (\\alpha_1, \\dots, \\alpha_k)$ com $\\alpha_j > 0$; $\\alpha_0 = \\sum \\alpha_j$</div>
-                <div class="dist-grid-item"><span class="label">Suporte</span> $\\boldsymbol{\\theta} \\in \\Delta_k = \\{\\boldsymbol{\\theta} \\in (0,1)^k : \\sum_{j=1}^k \\theta_j = 1\\}$ (Simplex unitário)</div>
-                <div class="dist-grid-item"><span class="label">Função Densidade</span> $f(\\boldsymbol{\\theta}) = \\frac{\\Gamma(\\alpha_0)}{\\prod_{j=1}^k \\Gamma(\\alpha_j)} \\prod_{j=1}^k \\theta_j^{\\alpha_j-1}$</div>
+                <div class="dist-grid-item"><span class="label">Suporte</span> $\\boldsymbol{\\theta} \\in \\Delta_k = \\{\\boldsymbol{\\theta} \\in (0,1)^k : \\sum_{j=1}^k \\theta_j = 1\\}$</div>
                 <div class="dist-grid-item"><span class="label">Momentos</span> $E[\\theta_j] = \\frac{\\alpha_j}{\\alpha_0}$, $\\Var(\\theta_j) = \\frac{\\alpha_j(\\alpha_0-\\alpha_j)}{\\alpha_0^2(\\alpha_0+1)}$</div>
+                <div class="dist-grid-density">
+                    <span class="label">Função Densidade de Probabilidade (F.D.P.)</span>
+                    <div class="formula">$$f(\\boldsymbol{\\theta}) = \\frac{\\Gamma(\\alpha_0)}{\\prod_{j=1}^k \\Gamma(\\alpha_j)} \\prod_{j=1}^k \\theta_j^{\\alpha_j-1}$$</div>
+                </div>
             </div>
             <p><strong>Quando usar:</strong> É a generalização multivariada da Beta. Modela vetores de probabilidades categóricas que somam exatamente 1 (ex: proporções de votos entre $k$ candidatos).</p>
             <div class="dist-role"><strong>Papel Bayesiano:</strong> Priori conjugada para a distribuição Multinomial e base dos processos não-paramétricos de Dirichlet.</div>
