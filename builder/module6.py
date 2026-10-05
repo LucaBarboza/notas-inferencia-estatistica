@@ -16,7 +16,10 @@ def get_module6_html():
 
         <div class="callout callout-tip">
             <div class="callout-header">💡 Sinopse Conceitual</div>
-            <p>O Modelo Linear Normal é a espinha dorsal da análise estatística aplicada. Na inferência bayesiana, a formulação matricial generaliza harmoniosamente a estrutura Normal-Gama para dimensões arbitrárias. Sob uma especificação de priori não informativa de referência (priori de Jeffreys), as estimativas pontuais coincidem numericamente de forma exata com o estimador de Mínimos Quadrados Ordinários (MQO) da inferência clássica. Contudo, a interpretação atinge um patamar superior: em vez de invocar teoremas assintóticos ou inventar correções ad-hoc para testes múltiplos, o estatístico bayesiano dispõe da distribuição a posteriori exata dos coeficientes, permitindo testar contrastes entre tratamentos em ANOVA diretamente como probabilidades de hipóteses substantivas.</p>
+            <p>O Modelo Linear Normal constitui a viga-mestra da modelagem estatística aplicada.</p>
+            <p>Na inferência bayesiana, a formulação matricial generaliza a estrutura conjugada Normal-Gama para dimensões arbitrárias com notável concisão.</p>
+            <p>Sob a priori de referência de Jeffreys, os estimadores pontuais coincidem numericamente com os Mínimos Quadrados Ordinários (MQO).</p>
+            <p>Contudo, a interpretação bayesiana supera as limitações frequentistas: dispomos da distribuição de probabilidade exata dos efeitos, permitindo testar <strong>contrastes lineares em ANOVA</strong> de forma direta, sem a necessidade de correções artificiais para testes múltiplos.</p>
         </div>
 
         <h2>6.1 O Modelo de Regressão Linear Múltipla Normal</h2>

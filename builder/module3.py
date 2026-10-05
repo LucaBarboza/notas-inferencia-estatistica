@@ -16,7 +16,10 @@ def get_module3_html():
 
         <div class="callout callout-tip">
             <div class="callout-header">💡 Sinopse Conceitual</div>
-            <p>Em inferência bayesiana, a integral no denominador do Teorema de Bayes pode ser analiticamente intratável para modelos arbitrários. No entanto, quando a distribuição a priori possui a mesma estrutura funcional do núcleo da verossimilhança, a distribuição a posteriori resultante pertence rigorosamente à mesma família paramétrica da priori. Essa propriedade matemática extraordinária é denominada <strong>fechamento por amostragem</strong> ou <strong>conjugação</strong>. Na Família Exponencial de distribuições, a conjugação surge de forma canônica, permitindo que toda a inferência seja reduzida a uma simples atualização algébrica de hiperparâmetros &mdash; onde o conhecimento prévio atua como "amostras virtuais adicionais".</p>
+            <p>Em inferência bayesiana, a constante normalizadora no denominador do Teorema de Bayes pode ser analiticamente intratável para modelos genéricos.</p>
+            <p>No entanto, quando a distribuição a priori possui a mesma estrutura algébrica do núcleo da verossimilhança, a posteriori resultante pertence rigorosamente à mesma família funcional da priori.</p>
+            <p>Essa propriedade é denominada <strong>fechamento por amostragem</strong> ou <strong>conjugação</strong>.</p>
+            <p>Na Família Exponencial, a conjugação surge de forma canônica e elegante. Toda a inferência é reduzida a uma simples atualização de hiperparâmetros &mdash; onde o conhecimento a priori atua intuitivamente como <em>amostras virtuais adicionais</em>.</p>
         </div>
 
         <h2>3.1 Definição Formal de Conjugação e Fechamento</h2>

@@ -16,7 +16,10 @@ def get_module5_html():
 
         <div class="callout callout-tip">
             <div class="callout-header">💡 Sinopse Conceitual</div>
-            <p>O Teorema de Bayes formula uma teoria inferencial unificada e elegante, mas sua aplicação em modelos realistas &mdash; multiparamétricos, hierárquicos ou não-lineares &mdash; enfrenta um obstáculo matemático intransponível: <strong>a constante de normalização e as marginais a posteriori envolvem integrais em dimensões elevadas sem solução analítica fechada</strong>. Métodos numéricos determinísticos (como Simpson ou quadraturas gaussianas) sucumbem à maldição da dimensionalidade. A revolução bayesiana contemporânea foi viabilizada pelo desenvolvimento de algoritmos estocásticos baseados em simulação: <em>Monte Carlo Simples</em>, <em>Amostragem por Importância</em> e, fundamentalmente, <strong>Monte Carlo via Cadeias de Markov (MCMC)</strong>, onde geramos trajetórias cujo comportamento de longo prazo converge para a distribuição a posteriori exata.</p>
+            <p>O Teorema de Bayes estabelece uma teoria inferencial unificada e elegante.</p>
+            <p>No entanto, sua aplicação em modelos complexos e realistas enfrenta uma barreira matemática: <strong>a constante de normalização e as distribuições marginais exigem integrais em dimensões elevadas sem solução analítica fechada</strong>.</p>
+            <p>Métodos numéricos determinísticos sucumbem rapidamente à maldição da dimensionalidade.</p>
+            <p>A moderna revolução bayesiana foi impulsionada por algoritmos de simulação estocástica: <em>Monte Carlo Simples</em>, <em>Amostragem por Importância</em> e, sobretudo, <strong>Monte Carlo via Cadeias de Markov (MCMC)</strong> &mdash; onde simulamos trajetórias cuja distribuição de equilíbrio estacionária é exatamente a posteriori desejada.</p>
         </div>
 
         <h2>5.1 O Desafio da Integração Numérica em Altas Dimensões</h2>
