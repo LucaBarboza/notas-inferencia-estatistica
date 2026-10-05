@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Luca Ferreira Barboza">
+    <title>Notas de Inferência Estatística Bayesiana — Luca Ferreira Barboza</title>
+    
+    <!-- Configuração MathJax 3 com tratamento rigoroso de delimitadores -->
+    <script>
+    window.MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']],
+            processEscapes: true,
+            processEnvironments: true,
+            tags: 'ams'
+        },
+        options: {
+            skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        chtml: {
+            displayAlign: 'center'
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --accent: #4f46e5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-body: #f8fafc;
+            --bg-paper: #ffffff;
+            --sidebar-bg: #0f172a;
+            --sidebar-text: #cbd5e1;
+            --sidebar-active: #38bdf8;
+            --border: #e2e8f0;
+            --def-border: #0284c7;
+            --def-bg: #f0f9ff;
+            --theo-border: #6366f1;
+            --theo-bg: #eef2ff;
+            --tip-border: #10b981;
+            --tip-bg: #ecfdf5;
+            --warn-border: #f59e0b;
+            --warn-bg: #fffbeb;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.8;
+            font-size: 16px;
+            display: flex;
+        }
+
+        /* Barra Lateral de Navegação (Sidebar) */
+        #sidebar {
+            width: 320px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            padding: 30px 20px 60px 20px;
+            font-size: 0.88rem;
+            border-right: 1px solid #1e293b;
+            z-index: 100;
+        }
+
+        #sidebar::-webkit-scrollbar { width: 6px; }
+        #sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+        .sidebar-header {
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.15rem;
+            color: #f8fafc;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .sidebar-header .author-tag {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 6px;
+            display: inline-block;
+        }
+
+        .nav-group { margin-bottom: 22px; }
+        .nav-group-title {
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: #64748b;
+            margin-bottom: 10px;
+            padding-left: 8px;
+        }
+
+        .nav-list { list-style: none; }
+        .nav-list li { margin-bottom: 4px; }
+        .nav-list a {
+            display: block;
+            padding: 7px 10px;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+            line-height: 1.4;
+        }
+
+        .nav-list a:hover {
+            background-color: #1e293b;
+            color: var(--sidebar-active);
+        }
+
+        /* Conteúdo Principal */
+        #content-wrapper {
+            margin-left: 320px;
+            flex: 1;
+            padding: 50px 60px 120px 60px;
+            max-width: 1050px;
+        }
+
+        .content-card {
+            background: var(--bg-paper);
+            padding: 60px 70px;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        /* Cabeçalho do Documento */
+        .doc-header {
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .doc-header h1 {
+            font-size: 2.3rem;
+            color: #0f172a;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.25;
+            margin-bottom: 12px;
+        }
+
+        .doc-header .doc-meta {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Tipografia de Seções */
+        h1.section-title {
+            font-size: 1.85rem;
+            color: #0f172a;
+            font-weight: 700;
+            margin-top: 60px;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2.subsection-title {
+            font-size: 1.35rem;
+            color: #1e293b;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 18px;
+        }
+
+        h3.subsubsection-title {
+            font-size: 1.12rem;
+            color: #334155;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 14px;
+        }
+
+        p { margin-bottom: 18px; text-align: justify; }
+
+        /* Caixas de Destaque Semântico */
+        .callout {
+            margin: 25px 0;
+            padding: 20px 24px;
+            border-radius: 8px;
+            font-size: 0.96rem;
+            line-height: 1.75;
+        }
+
+        .callout-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .callout-def {
+            background-color: var(--def-bg);
+            border-left: 5px solid var(--def-border);
+            color: #0c4a6e;
+        }
+        .callout-def .callout-title { color: #0284c7; }
+
+        .callout-theo {
+            background-color: var(--theo-bg);
+            border-left: 5px solid var(--theo-border);
+            color: #312e81;
+        }
+        .callout-theo .callout-title { color: #4338ca; }
+
+        .callout-tip {
+            background-color: var(--tip-bg);
+            border-left: 5px solid var(--tip-border);
+            color: #064e3b;
+        }
+        .callout-tip .callout-title { color: #059669; }
+
+        .callout-warn {
+            background-color: var(--warn-bg);
+            border-left: 5px solid var(--warn-border);
+            color: #78350f;
+        }
+        .callout-warn .callout-title { color: #d97706; }
+
+        .callout-proof {
+            background-color: #f8fafc;
+            border-left: 4px solid #94a3b8;
+            color: #334155;
+            font-size: 0.94rem;
+            margin: 18px 0 25px 0;
+            padding: 16px 20px;
+        }
+        .callout-proof .callout-title {
+            font-style: italic;
+            color: #475569;
+            font-size: 0.92rem;
+        }
+
+        /* Tabelas Matemáticas Rigorosas */
+        .table-container {
+            overflow-x: auto;
+            margin: 28px 0;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+            text-align: left;
+            background: #ffffff;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 700;
+            padding: 14px 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:nth-child(even) td { background-color: #f8fafc; }
+        tr:hover td { background-color: #f1f5f9; }
+
+        /* Listas Estilizadas */
+        ul, ol {
+            margin: 15px 0 22px 28px;
+        }
+
+        li { margin-bottom: 8px; }
+
+        /* Rodapé do Autor */
+        .author-footer {
+            margin-top: 80px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsividade */
+        @media (max-width: 992px) {
+            body { flex-direction: column; }
+            #sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 20px;
+            }
+            #content-wrapper {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .content-card { padding: 30px 25px; }
+        }
+
+        /* Impressão Limpa */
+        @media print {
+            #sidebar { display: none; }
+            #content-wrapper { margin-left: 0; padding: 0; }
+            .content-card { box-shadow: none; border: none; padding: 0; }
+            .section-title { page-break-before: always; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR DE NAVEGAÇÃO HIERÁRQUICA -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h2>Inferência Bayesiana</h2>
+            <span class="author-tag">Por <strong>Luca Ferreira Barboza</strong></span>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">1. Fundamentos & Distribuições</div>
+            <ul class="nav-list">
+                <li><a href="#paradigma">Bayesiano vs. Frequentista</a></li>
+                <li><a href="#verossimilhanca">Princípio da Verossimilhança</a></li>
+                <li><a href="#dist-discretas">Distribuições Discretas</a></li>
+                <li><a href="#dist-continuas">Distribuições Contínuas</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">2. Prioris, Posteriori & Preditivas</div>
+            <ul class="nav-list">
+                <li><a href="#teorema-bayes">Teorema de Bayes</a></li>
+                <li><a href="#preditivas">Distribuições Preditivas</a></li>
+                <li><a href="#classificacao-prioris">Classificação das Prioris</a></li>
+                <li><a href="#priori-jeffreys">Priori de Jeffreys</a></li>
+                <li><a href="#hierarquicas-misturas">Prioris Hierárquicas & Misturas</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">3. Famílias Conjugadas</div>
+            <ul class="nav-list">
+                <li><a href="#conjugacao-conceito">Conceito de Conjugação</a></li>
+                <li><a href="#familia-exponencial">Família Exponencial</a></li>
+                <li><a href="#pares-conjugados">Principais Pares Conjugados</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">4. Estimação & Decisão</div>
+            <ul class="nav-list">
+                <li><a href="#teoria-decisao">Teoria da Decisão</a></li>
+                <li><a href="#estimadores-pontuais">Estimadores de Bayes (Média, Mediana, Moda)</a></li>
+                <li><a href="#estimacao-intervalar">Intervalos de Credibilidade & HPD</a></li>
+                <li><a href="#testes-hipoteses">Testes de Hipóteses & Fator de Bayes</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">5. Computação Bayesiana</div>
+            <ul class="nav-list">
+                <li><a href="#monte-carlo-simples">Monte Carlo Simples</a></li>
+                <li><a href="#importancia-sir">Amostragem por Importância & SIR</a></li>
+                <li><a href="#metodo-rejeicao">Método da Rejeição</a></li>
+                <li><a href="#mcmc-fundamentos">Cadeias de Markov & MCMC</a></li>
+                <li><a href="#metropolis-hastings">Algoritmo Metropolis-Hastings</a></li>
+                <li><a href="#amostrador-gibbs">Amostrador de Gibbs</a></li>
+                <li><a href="#rjmcmc">Saltos Reversíveis (RJMCMC)</a></li>
+                <li><a href="#diagnosticos-convergencia">Diagnósticos de Convergência</a></li>
+            </ul>
+        </div>
+
+        <div class="nav-group">
+            <div class="nav-group-title">6. Modelos Lineares & ANOVA</div>
+            <ul class="nav-list">
+                <li><a href="#regressao-linear">Regressão Linear Normal</a></li>
+                <li><a href="#anova-bayesiana">ANOVA de 1 Fator</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
+    <div id="content-wrapper">
+        <main class="content-card">
+
+            <header class="doc-header">
+                <h1>Notas de Inferência Estatística Bayesiana</h1>
+                <div class="doc-meta">
+                    <span><strong>Autor:</strong> Luca Ferreira Barboza</span>
+                    <span><strong>Área:</strong> Estatística & Inferência Paramétrica</span>
+                    <span><strong>Formato:</strong> Tratado Conceitual e Analítico</span>
+                </div>
+            </header>
+
+            <!-- ========================================================================= -->
+            <!-- CAPÍTULO 1: FUNDAMENTOS E DISTRIBUIÇÕES DE PROBABILIDADE                  -->
+            <!-- ========================================================================= -->
+            <h1 id="paradigma" class="section-title">1. Fundamentos e Distribuições de Probabilidade</h1>
+
+            <h2 class="subsection-title">1.1 Paradigma Bayesiano vs. Paradigma Frequentista</h2>
+
+            <p>A inferência estatística é a disciplina dedicada a extrair conclusões formais acerca de fenômenos reais a partir de dados observados sob condições de incerteza. A divergência fundamental entre o paradigma Bayesiano e o paradigma Frequentista não reside em fórmulas isoladas, mas na própria definição e interpretação da <strong>natureza da probabilidade</strong> e na modelagem ontológica dos <strong>parâmetros</strong>.</p>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definição: Concepção Ontológica do Parâmetro e dos Dados</div>
+                <p><strong>Visão Frequentista (Objetiva / Limite de Frequências):</strong> A probabilidade representa o limite da frequência relativa de ocorrência de um evento em uma sequência infinita de repetições hipotéticas e idênticas do experimento. Sob esta ótica, o parâmetro $\theta \in \Theta$ é um <strong>valor fixo, constante e desconhecido</strong> da natureza. A variabilidade reside exclusivamente nos dados amostrais $X$, considerados variáveis aleatórias repetíveis sob o mesmo esquema experimental.</p>
+                <p><strong>Visão Bayesiana (Epistêmica / Grau de Crença Racional):</strong> A probabilidade quantifica o estado de conhecimento, plausibilidade ou incerteza que um agente possui sobre uma proposição, condicionado à informação disponível. Como o parâmetro $\theta$ é desconhecido, ele é formalmente modelado como uma <strong>variável aleatória</strong> dotada de uma distribuição de probabilidade. Em contrapartida, os dados observados $x = (x_1, \dots, x_n)$ tornam-se <strong>constantes fixadas</strong> após a realização do experimento.</p>
+            </div>
+
+            <p>Essa disparidade conceitual acarreta profundas consequências práticas:</p>
+            <ul>
+                <li><strong>Interpretação de Afirmações:</strong> Na inferência frequentista, afirmações diretas sobre probabilidades de hipóteses ou parâmetros (e.g., $P(1.5 \le \theta \le 2.3) = 0.95$) são logicamente sem sentido, pois $\theta$ não varia: ele está ou não está no intervalo. No paradigma Bayesiano, a distribuição a posteriori $p(\theta|x)$ permite calcular diretamente $P(\theta \in A \mid x) = \int_A p(\theta|x)d\theta$, correspondendo a uma probabilidade subjetiva condicionada aos dados reais.</li>
+                <li><strong>O Problema do $p$-valor e Contrafactuais:</strong> O teste de significância frequentista calcula $P(\text{Dados tão ou mais extremos que } x \mid H_0)$. Isso significa que a decisão estatística depende de eventos que <em>poderiam ter ocorrido, mas não ocorreram no mundo real</em> (contrafactuais), introduzindo dependência artificial do espaço amostral concebido. Além disso, confunde-se frequentemente o $p$-valor com a probabilidade da hipótese nula ser verdadeira (a famosa <em>falácia da transposição da condicional</em>: $P(D \mid H_0) \neq P(H_0 \mid D)$).</li>
+                <li><strong>A Regra de Parada (Stopping Rule Principle):</strong> Na inferência clássica, se um pesquisador planeja realizar $n = 100$ ensaios de Bernoulli e obtém $k = 10$ sucessos, ele modela $X \sim \text{Binomial}(100, \theta)$. Se ele decide parar o experimento assim que atingir $k = 10$ sucessos e precisa de 100 ensaios para isso, o modelo passa a ser $Y \sim \text{Binomial Negativa}(10, \theta)$. Embora os dados observados sejam exatamente idênticos ($10$ sucessos em $100$ ensaios), o frequentista obtém $p$-valores diferentes porque os espaços amostrais diferem. Para o Bayesiano, como a função de verossimilhança é proporcional em ambos os casos ($l(\theta; x) \propto \theta^{10}(1-\theta)^{90}$), as conclusões inferenciais são rigorosamente idênticas.</li>
+            </ul>
+
+            <h2 id="verossimilhanca" class="subsection-title">1.2 Princípio da Verossimilhança e Suficiência</h2>
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Teorema: Teorema da Fatoração de Fisher-Neyman</div>
+                Uma estatística $T(X)$ é <strong>suficiente</strong> para o parâmetro $\theta$ se, e somente se, a função de densidade (ou probabilidade) conjunta da amostra pode ser decomposta no produto de duas funções:
+                $$p(x \mid \theta) = g(T(x), \theta) \cdot h(x)$$
+                onde $h(x)$ depende de $x$ apenas através dos dados e não envolve $\theta$, enquanto $g(T(x), \theta)$ depende de $x$ exclusivamente através da estatística $T(x)$.
+            </div>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definição: O Princípio da Verossimilhança (Birnbaum, 1962)</div>
+                Se dois experimentos distintos com o mesmo parâmetro de interesse $\theta$ resultam em dados $x_1$ e $x_2$ tais que suas funções de verossimilhança são diretamente proporcionais para todo $\theta \in \Theta$:
+                $$l_1(\theta; x_1) = c(x_1, x_2) \cdot l_2(\theta; x_2) \quad \forall \theta$$
+                onde $c(x_1, x_2) > 0$ não depende de $\theta$, então toda e qualquer inferência estatística sobre $\theta$ obtida a partir de $x_1$ deve ser idêntica à obtida a partir de $x_2$.
+            </div>
+
+            <p>Birnbaum demonstrou formalmente que o <strong>Princípio da Verossimilhança</strong> decorre de dois axiomas intuitivos amplamente aceitos: o <em>Princípio da Suficiência</em> (se $T(X)$ é suficiente, a inferência deve depender apenas de $T(x)$) e o <em>Princípio da Condicionalidade</em> (se realizamos um experimento escolhendo aleatoriamente entre dois ensaios independentes com probabilidade fixa, a inferência final deve depender apenas do experimento que de fato foi executado).</p>
+
+            <h2 id="dist-discretas" class="subsection-title">1.3 Modelos de Probabilidade Discretos</h2>
+
+            <p>Os modelos discretos caracterizam contagens, frequências e variáveis categóricas, fornecendo a base tanto para a especificação da função de verossimilhança amostral quanto para distribuições a priori em espaços enumeráveis.</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Distribuição</th>
+                            <th>Suporte</th>
+                            <th>Função de Probabilidade $P(X=k)$</th>
+                            <th>Esperança $E[X]$</th>
+                            <th>Variância $\text{Var}(X)$</th>
+                            <th>Interpretação e Papel Bayesiano</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Bernoulli</strong><br>$\text{Ber}(p)$</td>
+                            <td>$k \in \{0, 1\}$</td>
+                            <td>$p^k (1-p)^{1-k}$</td>
+                            <td>$p$</td>
+                            <td>$p(1-p)$</td>
+                            <td>Ensaio único com dois desfechos possíveis. Base da verossimilhança em classificação binária.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Binomial</strong><br>$\text{Bin}(n, p)$</td>
+                            <td>$k \in \{0, 1, \dots, n\}$</td>
+                            <td>$\binom{n}{k} p^k (1-p)^{n-k}$</td>
+                            <td>$np$</td>
+                            <td>$np(1-p)$</td>
+                            <td>Contagem de sucessos em $n$ ensaios Bernoulli i.i.d. Conjugada à priori Beta.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Poisson</strong><br>$\text{Pois}(\lambda)$</td>
+                            <td>$k \in \{0, 1, 2, \dots\}$</td>
+                            <td>$\frac{e^{-\lambda} \lambda^k}{k!}$</td>
+                            <td>$\lambda$</td>
+                            <td>$\lambda$</td>
+                            <td>Ocorrências raras em intervalos contínuos de tempo/espaço. Equidispersão ($E = \text{Var}$). Conjugada à priori Gama.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Geométrica</strong><br>$\text{Geo}(p)$</td>
+                            <td>$k \in \{1, 2, \dots\}$</td>
+                            <td>$(1-p)^{k-1} p$</td>
+                            <td>$\frac{1}{p}$</td>
+                            <td>$\frac{1-p}{p^2}$</td>
+                            <td>Número de ensaios independentes necessários até a ocorrência do 1º sucesso. Propriedade de perda de memória.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Binomial Negativa</strong><br>$\text{BN}(r, p)$</td>
+                            <td>$k \in \{0, 1, 2, \dots\}$</td>
+                            <td>$\binom{k+r-1}{k} p^r (1-p)^k$</td>
+                            <td>$\frac{r(1-p)}{p}$</td>
+                            <td>$\frac{r(1-p)}{p^2}$</td>
+                            <td>Número de fracassos $k$ até observar $r$ sucessos. Apresenta superdispersão ($\text{Var} > E$). Surge como preditiva a posteriori do modelo Poisson-Gama.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hipergeométrica</strong><br>$\text{Hiper}(N, K, n)$</td>
+                            <td>$k \in \{\max(0, n-(N-K)), \dots, \min(n, K)\}$</td>
+                            <td>$\frac{\binom{K}{k} \binom{N-K}{n-k}}{\binom{N}{n}}$</td>
+                            <td>$n \frac{K}{N}$</td>
+                            <td>$n \frac{K}{N} \left(1 - \frac{K}{N}\right) \left(\frac{N-n}{N-1}\right)$</td>
+                            <td>Amostragem <em>sem reposição</em> em população finita $N$ com $K$ sucessos. O termo $\frac{N-n}{N-1}$ é o fator de correção de população finita.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Multinomial</strong><br>$\text{Mult}(n, \mathbf{p})$</td>
+                            <td>$\sum_{j=1}^m k_j = n$<br>$k_j \ge 0$</td>
+                            <td>$\frac{n!}{\prod_{j=1}^m k_j!} \prod_{j=1}^m p_j^{k_j}$</td>
+                            <td>$E[X_j] = np_j$</td>
+                            <td>$\text{Var}(X_j) = np_j(1-p_j)$<br>$\text{Cov}(X_j, X_l) = -np_j p_l$</td>
+                            <td>Extensão da Binomial para $m$ categorias mutuamente exclusivas com $\sum p_j = 1$. Conjugada à priori Dirichlet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2 id="dist-continuas" class="subsection-title">1.4 Modelos de Probabilidade Contínuos</h2>
+
+            <p>As variáveis contínuas são fundamentais na modelagem de parâmetros desconhecidos e tempos de espera. Na inferência bayesiana, destacam-se a parametrização em termos de precisão ($\tau = 1/\sigma^2$) e a utilização de densidades com suporte compacto para modelar proporções.</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Distribuição</th>
+                            <th>Suporte</th>
+                            <th>Função Densidade $f(x)$</th>
+                            <th>Esperança $E[X]$</th>
+                            <th>Variância $\text{Var}(X)$</th>
+                            <th>Propriedades & Papel Bayesiano</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Uniforme</strong><br>$U(a, b)$</td>
+                            <td>$x \in [a, b]$</td>
+                            <td>$\frac{1}{b-a}$</td>
+                            <td>$\frac{a+b}{2}$</td>
+                            <td>$\frac{(b-a)^2}{12}$</td>
+                            <td>Atribui igual densidade a intervalos de mesmo comprimento. Representa o Princípio da Razão Insuficiente de Bayes-Laplace em suporte limitado.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Normal</strong><br>$N(\mu, \sigma^2)$</td>
+                            <td>$x \in \mathbb{R}$</td>
+                            <td>$\frac{1}{\sqrt{2\pi\sigma^2}} \exp\left\{ -\frac{(x-\mu)^2}{2\sigma^2} \right\}$</td>
+                            <td>$\mu$</td>
+                            <td>$\sigma^2$</td>
+                            <td>Teorema Central do Limite e máxima entropia para média e variância fixadas. Na parametrização por precisão $\tau = \sigma^{-2}$: $f(x) \propto \tau^{1/2} e^{-\frac{\tau}{2}(x-\mu)^2}$.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gama</strong><br>$\text{Gama}(\alpha, \beta)$</td>
+                            <td>$x > 0$</td>
+                            <td>$\frac{\beta^\alpha}{\Gamma(\alpha)} x^{\alpha-1} e^{-\beta x}$</td>
+                            <td>$\frac{\alpha}{\beta}$</td>
+                            <td>$\frac{\alpha}{\beta^2}$</td>
+                            <td>Parametrizada por forma $\alpha > 0$ e taxa $\beta > 0$. Priori conjugada para a precisão normal e para a taxa da Poisson. Caso particular: $\chi^2_\nu \equiv \text{Gama}(\nu/2, 1/2)$.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Beta</strong><br>$\text{Beta}(\alpha, \beta)$</td>
+                            <td>$x \in (0, 1)$</td>
+                            <td>$\frac{1}{B(\alpha, \beta)} x^{\alpha-1} (1-x)^{\beta-1}$</td>
+                            <td>$\frac{\alpha}{\alpha+\beta}$</td>
+                            <td>$\frac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}$</td>
+                            <td>Suporte restrito a probabilidades e proporções. Se $\alpha=\beta=1$, reduz-se à Uniforme $U(0,1)$. Priori conjugada ao modelo Binomial/Bernoulli.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Exponencial</strong><br>$\text{Exp}(\lambda)$</td>
+                            <td>$x > 0$</td>
+                            <td>$\lambda e^{-\lambda x}$</td>
+                            <td>$\frac{1}{\lambda}$</td>
+                            <td>$\frac{1}{\lambda^2}$</td>
+                            <td>Modelagem de tempo até a ocorrência de evento contínuo sem envelhecimento: $P(X > s+t \mid X > s) = P(X > t)$. Caso particular: $\text{Gama}(1, \lambda)$.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>$t$ de Student</strong><br>$t_\nu(\mu, \sigma^2)$</td>
+                            <td>$x \in \mathbb{R}$</td>
+                            <td>$\frac{\Gamma\left(\frac{\nu+1}{2}\right)}{\Gamma\left(\frac{\nu}{2}\right)\sqrt{\pi\nu\sigma^2}} \left[ 1 + \frac{1}{\nu}\left(\frac{x-\mu}{\sigma}\right)^2 \right]^{-\frac{\nu+1}{2}}$</td>
+                            <td>$\mu \quad (\nu > 1)$</td>
+                            <td>$\sigma^2 \frac{\nu}{\nu-2} \quad (\nu > 2)$</td>
+                            <td>Apresenta caudas pesadas e robustez a outliers. Surge como distribuição marginal da média normal ao integrar a incerteza da variância sob priori Normal-Gama.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dirichlet</strong><br>$\text{Dir}(\boldsymbol{\alpha})$</td>
+                            <td>$\sum_{j=1}^m \theta_j = 1$<br>$\theta_j > 0$</td>
+                            <td>$\frac{\Gamma\left(\sum \alpha_j\right)}{\prod \Gamma(\alpha_j)} \prod_{j=1}^m \theta_j^{\alpha_j-1}$</td>
+                            <td>$E[\theta_j] = \frac{\alpha_j}{\alpha_0}$<br>$\alpha_0 = \sum \alpha_j$</td>
+                            <td>$\text{Var}(\theta_j) = \frac{\alpha_j(\alpha_0 - \alpha_j)}{\alpha_0^2(\alpha_0+1)}$</td>
+                            <td>Distribuição sobre o simplex unitário multivariado. Generalização dimensional da Beta. Priori conjugada natural para a verossimilhança Multinomial.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ========================================================================= -->
+            <!-- CAPÍTULO 2: DISTRIBUIÇÕES A PRIORI E A POSTERIORI                         -->
+            <!-- ========================================================================= -->
+            <h1 id="teorema-bayes" class="section-title">2. Distribuições a Priori e a Posteriori (Teorema de Bayes e Preditiva)</h1>
+
+            <h2 class="subsection-title">2.1 O Mecanismo Fundamental de Atualização Bayesiana</h2>
+
+            <p>O pilar matemático da inferência bayesiana é a inversão formal de probabilidades condicionais estabelecida pelo Teorema de Thomas Bayes (1763). Seja $\theta \in \Theta$ o parâmetro desconhecido e $x = (x_1, \dots, x_n)$ a amostra observada.</p>
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Teorema: Teorema de Bayes para Variáveis Contínuas e Discretas</div>
+                Seja $p(\theta)$ a distribuição de probabilidade a priori do parâmetro e $p(x \mid \theta)$ a densidade conjunta amostral (a verossimilhança dos dados $l(\theta; x)$). A <strong>distribuição a posteriori</strong> $p(\theta \mid x)$ é formalmente dada por:
+                $$p(\theta \mid x) = \frac{p(x \mid \theta) p(\theta)}{p(x)} = \frac{p(x \mid \theta) p(\theta)}{\int_\Theta p(x \mid \theta) p(\theta) \, d\theta}$$
+                No caso em que o espaço paramétrico $\Theta$ é discreto, a integral do denominador é substituída pelo somatório:
+                $$p(\theta_k \mid x) = \frac{p(x \mid \theta_k) p(\theta_k)}{\sum_{j} p(x \mid \theta_j) p(\theta_j)}$$
+            </div>
+
+            <p>O denominador $p(x) = \int_\Theta p(x \mid \theta) p(\theta) d\theta$ é conhecido como a <strong>constante normalizadora</strong>, densidade marginal dos dados ou <strong>evidência marginal</strong>. Como ela não depende explicitamente de $\theta$ (o parâmetro foi integrado em todo o seu domínio), ela atua como um fator de escala para que a área total sob a curva da posteriori seja estritamente unitária ($\int_\Theta p(\theta|x) d\theta = 1$).</p>
+
+            <p>Portanto, podemos expressar a relação matemática fundamental na forma proporcional:</p>
+            $$\underbrace{p(\theta \mid x)}_{\text{Posteriori}} \propto \underbrace{l(\theta; x)}_{\text{Verossimilhança}} \times \underbrace{p(\theta)}_{\text{Priori}}$$
+
+            <div class="callout callout-tip">
+                <div class="callout-title">Propriedade: Aprendizado Sequencial Contínuo</div>
+                Uma das características mais elegantes do método bayesiano é que o processamento sequencial de observações preserva a exata mesma posteriori que a análise em lote. Suponha uma partição da amostra em dois blocos de observações independentes condicionadas a $\theta$: $x = (x_{(1)}, x_{(2)})$.
+                <p>1. Ao observar $x_{(1)}$, a posteriori inicial é obtida por: $p(\theta \mid x_{(1)}) \propto p(x_{(1)} \mid \theta) p(\theta)$.</p>
+                <p>2. Ao coletar posteriormente $x_{(2)}$, adotamos $p(\theta \mid x_{(1)})$ como a <strong>nova distribuição a priori</strong>:</p>
+                $$p(\theta \mid x_{(1)}, x_{(2)}) \propto p(x_{(2)} \mid \theta) \cdot p(\theta \mid x_{(1)}) \propto p(x_{(2)} \mid \theta) \cdot [p(x_{(1)} \mid \theta) p(\theta)] = p(x_{(1)}, x_{(2)} \mid \theta) p(\theta)$$
+                A posteriori resultante é exatamente a mesma que teria sido calculada caso todos os dados tivessem sido processados simultaneamente.
+            </div>
+
+            <h2 id="preditivas" class="subsection-title">2.2 Distribuições Preditivas</h2>
+
+            <p>A inferência estatística muitas vezes não se encerra na estimativa de parâmetros não observáveis, mas visa antecipar observações futuras verificáveis no mundo físico.</p>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definição: Distribuição Preditiva a Priori</div>
+                A distribuição preditiva a priori expressa a incerteza acerca do vetor amostral $X$ antes da coleta de qualquer evidência empírica, integrando a verossimilhança ponderada pela crença a priori:
+                $$p(x) = \int_\Theta p(x \mid \theta) p(\theta) \, d\theta = E_{\theta}[p(x \mid \theta)]$$
+                Ela é essencial para checagens de calibração pré-amostrais (*prior predictive checks*) e para o cálculo da evidência de modelos concorrentes.
+            </div>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definição: Distribuição Preditiva a Posteriori</div>
+                Seja $Y$ uma observação futura originada do mesmo processo gerador de dados, condicionalmente independente da amostra observada $x$ dado $\theta$ ($Y \perp X \mid \theta$). A <strong>distribuição preditiva a posteriori</strong> de $Y$ dado $x$ incorpora tanto a variabilidade aleatória inerente ao processo gerador quanto a incerteza residual do parâmetro refletida na posteriori:
+                $$p(y \mid x) = \int_\Theta p(y \mid \theta, x) p(\theta \mid x) \, d\theta = \int_\Theta p(y \mid \theta) p(\theta \mid x) \, d\theta = E_{\theta \mid x}[p(y \mid \theta)]$$
+            </div>
+
+            <h2 id="classificacao-prioris" class="subsection-title">2.3 Classificação das Distribuições a Priori</h2>
+
+            <p>A escolha e a especificação da distribuição a priori $p(\theta)$ representam a formalização de hipóteses científicas e conhecimentos existentes. As prioris são tradicionalmente categorizadas de acordo com três eixos fundamentais:</p>
+
+            <ul>
+                <li><strong>Próprias vs. Impróprias:</strong>
+                    <ul>
+                        <li>Uma priori é dita <strong>própria</strong> se integra a um valor finito e pode ser normalizada a 1: $\int_\Theta p(\theta) d\theta = 1$.</li>
+                        <li>Uma priori é dita <strong>imprópria</strong> se sua integral sobre o espaço paramétrico diverge: $\int_\Theta p(\theta) d\theta = \infty$. Prioris impróprias são frequentemente empregadas como representações de ignorância quase absoluta. <em>Atenção crítica:</em> O uso de uma priori imprópria só é matematicamente admissível se a posteriori resultante for estritamente própria, isto é, se $\int_\Theta l(\theta; x) p(\theta) d\theta < \infty$.</li>
+                    </ul>
+                </li>
+                <li><strong>Informativas, Moderadamente Informativas e Vagas:</strong>
+                    <ul>
+                        <li><em>Informativas:</em> Concentram grande densidade de probabilidade em regiões restritas do espaço paramétrico, expressando conhecimento substancial advindo de ensaios clínicos anteriores, física teórica ou registros históricos.</li>
+                        <li><em>Moderadamente Informativas (Reguladoras):</em> Não fixam valores pontuais com extrema certeza, mas restringem a probabilidade a faixas fisicamente plausíveis, evitando que parâmetros assumam magnitudes absurdas (efeito de regularização).</li>
+                        <li><em>Vagas / Difusas:</em> Possuem variância extremamente elevada (e.g., $\theta \sim N(0, 10^6)$), buscando exercer influência mínima sobre a verossimilhança dos dados observados.</li>
+                    </ul>
+                </li>
+                <li><strong>Subjetivas vs. Objetivas (de Referência):</strong>
+                    <ul>
+                        <li><em>Subjetivas:</em> Construídas formalmente a partir de processos de elicitação de opiniões de especialistas ou funções de crença pessoal.</li>
+                        <li><em>Objetivas / Não-Informativas:</em> Determinadas a partir de princípios matemáticos formais (invariância, maximização de entropia ou regras de informação) de modo a deixar que a evidência empírica domine a inferência.</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h2 id="priori-jeffreys" class="subsection-title">2.4 A Priori Não Informativa de Jeffreys</h2>
+
+            <p>Historicamente, Bayes e Laplace propuseram o <em>Princípio da Razão Insuficiente</em>, atribuindo densidade uniforme constante $p(\theta) \propto c$ para representar a ausência total de conhecimento. No entanto, essa abordagem padece de uma inconsistência matemática grave: a <strong>falta de invariância sob reparametrização</strong>.</p>
+
+            <div class="callout callout-warn">
+                <div class="callout-title">O Paradoxo da Falta de Invariância da Priori Uniforme</div>
+                Seja $\theta \in (0, 1)$ a probabilidade de sucesso de uma moeda, com priori uniforme $p(\theta) = 1$. Suponha que um segundo pesquisador decida analisar o problema em termos da razão de chances (*odds ratio*): $\phi = g(\theta) = \frac{\theta}{1-\theta}$.<br>
+                Pelo teorema da transformação de variáveis, a densidade induzida sobre $\phi$ é:
+                $$p_\Phi(\phi) = p_\Theta(g^{-1}(\phi)) \left| \frac{d\theta}{d\phi} \right| = 1 \cdot \frac{d}{d\phi}\left(\frac{\phi}{1+\phi}\right) = \frac{1}{(1+\phi)^2}$$
+                A distribuição sobre $\phi$ não é mais uniforme! Ou seja, ser "completamente ignorante" sobre $\theta$ implicava um conhecimento prévio muito específico sobre $\phi$, o que revela que a uniforme não é neutra sob transformações não lineares.
+            </div>
+
+            <p>Para contornar essa fragilidade, Sir Harold Jeffreys (1961) propôs uma regra formal invariante baseada na curvatura média da função de suporte dos dados, mensurada através da <strong>Informação de Fisher</strong>.</p>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definição: Informação de Fisher</div>
+                Para um parâmetro escalar $\theta$, a Informação de Fisher $I(\theta)$ quantifica a quantidade de informação que a variável aleatória $X$ carrega sobre $\theta$:
+                $$I(\theta) = E_{X \mid \theta}\left[ \left( \frac{\partial \log p(X \mid \theta)}{\partial \theta} \right)^2 \right] = - E_{X \mid \theta}\left[ \frac{\partial^2 \log p(X \mid \theta)}{\partial \theta^2} \right]$$
+                No caso em que $\boldsymbol{\theta} = (\theta_1, \dots, \theta_d)'$ é um vetor paramétrico, define-se a <strong>Matriz de Informação de Fisher</strong> com componentes:
+                $$[I(\boldsymbol{\theta})]_{jk} = - E_{X \mid \boldsymbol{\theta}}\left[ \frac{\partial^2 \log p(X \mid \boldsymbol{\theta})}{\partial \theta_j \partial \theta_k} \right]$$
+            </div>
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Teorema: A Regra e o Teorema da Invariância de Jeffreys</div>
+                A <strong>Priori de Jeffreys</strong> para um parâmetro escalar $\theta$ é definida proporcionalmente à raiz quadrada da Informação de Fisher:
+                $$p_J(\theta) \propto \sqrt{I(\theta)}$$
+                Para um vetor de parâmetros $\boldsymbol{\theta}$, ela é dada pela raiz quadrada do determinante da Matriz de Informação de Fisher:
+                $$p_J(\boldsymbol{\theta}) \propto \sqrt{\det I(\boldsymbol{\theta})}$$
+                <strong>Prova da Invariância:</strong> Seja uma reparametrização bijetora monótona e diferenciável $\phi = g(\theta)$. Pela regra da cadeia das derivadas parciais:
+                $$\frac{\partial \log p(x \mid \phi)}{\partial \phi} = \frac{\partial \log p(x \mid \theta)}{\partial \theta} \frac{d\theta}{d\phi}$$
+                Elevando ao quadrado e calculando a esperança em relação a $X$:
+                $$I_\Phi(\phi) = E\left[ \left(\frac{\partial \log p(X \mid \phi)}{\partial \phi}\right)^2 \right] = E\left[ \left(\frac{\partial \log p(X \mid \theta)}{\partial \theta}\right)^2 \right] \left(\frac{d\theta}{d\phi}\right)^2 = I_\Theta(\theta) \left(\frac{d\theta}{d\phi}\right)^2$$
+                Aplicando a raiz quadrada em ambos os lados:
+                $$\sqrt{I_\Phi(\phi)} = \sqrt{I_\Theta(\theta)} \left| \frac{d\theta}{d\phi} \right|$$
+                Portanto, a regra de Jeffreys aplicada diretamente em $\phi$ coincide perfeitamente com a transformação de variáveis da regra aplicada a $\theta$:
+                $$p_J(\phi) = p_J(\theta) \left| \frac{d\theta}{d\phi} \right| \quad \blacksquare$$
+            </div>
+
+            <h3 class="subsubsection-title">Aplicações Canônicas da Priori de Jeffreys</h3>
+            <ul>
+                <li><strong>Modelo de Locação $p(x \mid \theta) = f(x - \theta)$ (onde $\theta \in \mathbb{R}$):</strong>
+                    A informação de Fisher é independente de $\theta$: $I(\theta) = \int \frac{(f'(u))^2}{f(u)} du = c$. Logo, a priori de Jeffreys é uniforme:
+                    $$p_J(\theta) \propto c \quad \text{(imprópria)}$$
+                </li>
+                <li><strong>Modelo de Escala $p(x \mid \sigma) = \frac{1}{\sigma} f\left(\frac{x}{\sigma}\right)$ (onde $\sigma > 0$):</strong>
+                    A derivada em relação a $\sigma$ produz $I(\sigma) = \frac{c}{\sigma^2}$. Aplicando a raiz quadrada:
+                    $$p_J(\sigma) \propto \frac{1}{\sigma} \quad \iff \quad p_J(\log \sigma) \propto 1 \quad \text{(imprópria)}$$
+                </li>
+                <li><strong>Modelo Binomial $X \sim \text{Bin}(n, \theta)$ ($\theta \in (0, 1)$):</strong>
+                    Sabemos que $\log p(x \mid \theta) = x \log \theta + (n-x) \log(1-\theta) + \text{const}$. Derivando duas vezes:
+                    $$\frac{\partial^2 \log p}{\partial \theta^2} = -\frac{x}{\theta^2} - \frac{n-x}{(1-\theta)^2} \implies I(\theta) = \frac{n\theta}{\theta^2} + \frac{n(1-\theta)}{(1-\theta)^2} = \frac{n}{\theta(1-\theta)}$$
+                    Portanto, a priori de Jeffreys resulta na densidade própria:
+                    $$p_J(\theta) \propto \theta^{-1/2} (1-\theta)^{-1/2} = \text{Beta}\left(\frac{1}{2}, \frac{1}{2}\right) \quad \text{(Priori do Arco-seno)}$$
+                </li>
+                <li><strong>Modelo de Poisson $X \sim \text{Pois}(\lambda)$ ($\lambda > 0$):</strong>
+                    Como $\log p(x \mid \lambda) = -\lambda + x \log \lambda - \log x!$, temos $\frac{\partial^2 \log p}{\partial \lambda^2} = -\frac{x}{\lambda^2}$. Logo, $I(\lambda) = \frac{E[X]}{\lambda^2} = \frac{1}{\lambda}$.
+                    $$p_J(\lambda) \propto \lambda^{-1/2} = \frac{1}{\sqrt{\lambda}} \quad \text{(imprópria)}$$
+                </li>
+                <li><strong>Modelo Normal Multivariado $(\mu, \sigma^2)$ desconhecidos:</strong>
+                    A matriz de Informação de Fisher é diagonal devido à ortogonalidade dos parâmetros:
+                    $$I(\mu, \sigma^2) = \begin{bmatrix} \frac{n}{\sigma^2} & 0 \\ 0 & \frac{n}{2\sigma^4} \end{bmatrix} \implies \det I = \frac{n^2}{2\sigma^6}$$
+                    A regra pura de Jeffreys vetorial produziria $p(\mu, \sigma^2) \propto \sigma^{-3}$. No entanto, Jeffreys recomendou a aplicação da <em>regra de Jeffreys independente</em> (tratando locação e escala separadamente), resultando em:
+                    $$p_J(\mu, \sigma^2) = p(\mu) \cdot p(\sigma^2) \propto 1 \cdot \frac{1}{\sigma^2} = \frac{1}{\sigma^2}$$
+                </li>
+            </ul>
+
+            <h2 id="hierarquicas-misturas" class="subsection-title">2.5 Prioris Hierárquicas e Misturas de Prioris</h2>
+
+            <p>Quando a incerteza acerca do processo gerador de dados não pode ser condensada em uma única distribuição com hiperparâmetros fixos, recorre-se a estruturas mais sofisticadas:</p>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definição: Modelos e Prioris Hierárquicas</div>
+                Um modelo bayesiano hierárquico decompõe a variabilidade em múltiplos estágios estocásticos:
+                $$\begin{aligned}
+                X_i \mid \theta_i &\sim p(x_i \mid \theta_i) \quad \text{(Verossimilhança ao nível individual)} \\
+                \theta_i \mid \phi &\sim p(\theta_i \mid \phi) \quad \text{(Priori estrutural com hiperparâmetro } \phi\text{)} \\
+                \phi &\sim p(\phi) \quad \text{(Hiperpriori sobre os hiperparâmetros)}
+                \end{aligned}$$
+                A distribuição a posteriori conjunta é dada por:
+                $$p(\boldsymbol{\theta}, \phi \mid \mathbf{x}) \propto \left[ \prod_{i=1}^n p(x_i \mid \theta_i) p(\theta_i \mid \phi) \right] p(\phi)$$
+                Esta formulação promove o fenômeno de <strong>encolhimento (shrinkage)</strong> e compartilhamento de força (*borrowing strength*): as estimativas de cada $\theta_i$ são atraídas em direção à média global da população modelada por $\phi$, corrigindo estimativas espúrias em grupos de pequeno tamanho amostral.
+            </div>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definição: Misturas Finitas de Prioris</div>
+                Se a nossa crença inicial sobre $\theta$ reflete múltiplos cenários ou opiniões contrastantes de diferentes especialistas, expressamos a priori como uma combinação convexa de $K$ densidades conhecidas $p_k(\theta)$:
+                $$p(\theta) = \sum_{k=1}^K w_k p_k(\theta), \quad \text{onde } w_k \ge 0 \quad \text{e} \quad \sum_{k=1}^K w_k = 1$$
+                Ao combinar com a verossimilhança, a posteriori resultante continua sendo uma mistura das respectivas distribuições a posteriori $p_k(\theta \mid x)$, cujos pesos são atualizados pela evidência marginal de cada componente $p_k(x)$:
+                $$p(\theta \mid x) = \sum_{k=1}^K w_k^* p_k(\theta \mid x), \quad \text{onde } w_k^* = \frac{w_k p_k(x)}{\sum_{j=1}^K w_j p_j(x)}$$
+            </div>
+
+            <!-- ========================================================================= -->
+            <!-- CAPÍTULO 3: FAMÍLIAS CONJUGADAS                                           -->
+            <!-- ========================================================================= -->
+            <h1 id="conjugacao-conceito" class="section-title">3. Famílias Conjugadas</h1>
+
+            <h2 class="subsection-title">3.1 Definição de Conjugação e Fechamento por Amostragem</h2>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definição Formal: Conjugação Bayesiana</div>
+                Seja $\mathcal{F} = \{ p(x \mid \theta) : \theta \in \Theta \}$ uma classe de distribuições amostrais (verossimilhanças). Uma família de distribuições a priori $\mathcal{P} = \{ p(\theta \mid \boldsymbol{\alpha}) : \boldsymbol{\alpha} \in \mathcal{A} \}$ é dita <strong>conjugada</strong> a $\mathcal{F}$ se, para qualquer priori $p(\theta) \in \mathcal{P}$ e qualquer amostra observada $x$, a distribuição a posteriori correspondente pertence à mesma classe $\mathcal{P}$:
+                $$p(\theta \mid x) \in \mathcal{P}$$
+                Em outros termos, a família é fechada sob amostragem (*closure under sampling*), e o Teorema de Bayes se reduz a uma simples <strong>regra algébrica de atualização de hiperparâmetros</strong>: $\boldsymbol{\alpha}_{\text{posteriori}} = g(\boldsymbol{\alpha}_{\text{priori}}, x)$.
+            </div>
+
+            <h2 id="familia-exponencial" class="subsection-title">3.2 Conjugação na Família Exponencial Regular</h2>
+
+            <p>O Teorema de Koopman-Pitman-Darmois estabelece que somente modelos pertencentes à Família Exponencial admitem estatísticas suficientes com dimensão finita que independem do tamanho da amostra $n$. É precisamente essa propriedade que viabiliza a existência de famílias conjugadas naturais estruturadas.</p>
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Teorema: Família Exponencial a 1 Parâmetro e Priori Conjugada Natural</div>
+                Seja $X$ uma variável aleatória cuja função de probabilidade ou densidade pertence à Família Exponencial canônica:
+                $$p(x \mid \theta) = a(x) \exp\{ u(x) \phi(\theta) - b(\theta) \}$$
+                Para uma amostra aleatória i.i.d. de tamanho $n$, a verossimilhança conjunta assume a forma:
+                $$p(x_1, \dots, x_n \mid \theta) = \left[ \prod_{i=1}^n a(x_i) \right] \exp\left\{ \left[ \sum_{i=1}^n u(x_i) \right] \phi(\theta) - n b(\theta) \right\}$$
+                onde $T(x) = \sum_{i=1}^n u(x_i)$ é a estatística suficiente dimensionalmente invariante.<br>
+                Define-se a <strong>priori conjugada natural</strong> com hiperparâmetros $(\alpha_0, \beta_0)$ através do mesmo núcleo exponencial:
+                $$p(\theta \mid \alpha_0, \beta_0) = k(\alpha_0, \beta_0) \exp\{ \alpha_0 \phi(\theta) - \beta_0 b(\theta) \}$$
+                Multiplicando a verossimilhança pela priori, deduz-se diretamente a <strong>distribuição a posteriori</strong>:
+                $$\begin{aligned}
+                p(\theta \mid x) &\propto \exp\left\{ \left[ \alpha_0 + \sum_{i=1}^n u(x_i) \right] \phi(\theta) - (\beta_0 + n) b(\theta) \right\} \\
+                &= k(\alpha_1, \beta_1) \exp\{ \alpha_1 \phi(\theta) - \beta_1 b(\theta) \}
+                \end{aligned}$$
+                Onde os hiperparâmetros atualizados obedecem à regra aditiva:
+                $$\alpha_1 = \alpha_0 + \sum_{i=1}^n u(x_i) \quad \text{e} \quad \beta_1 = \beta_0 + n$$
+            </div>
+
+            <h2 id="pares-conjugados" class="subsection-title">3.3 Principais Pares Conjugados e Deduções Passo a Passo</h2>
+
+            <!-- PAR 1: BETA-BINOMIAL -->
+            <h3 class="subsubsection-title">Par 1: Modelo Bernoulli/Binomial com Priori Beta</h3>
+            <p>Seja $X \sim \text{Bin}(n, \theta)$, com $x \in \{0, 1, \dots, n\}$ e $\theta \in (0, 1)$. Especificamos uma priori $\theta \sim \text{Beta}(\alpha, \beta)$:</p>
+            $$p(x \mid \theta) = \binom{n}{x} \theta^x (1-\theta)^{n-x}, \quad p(\theta) = \frac{1}{B(\alpha, \beta)} \theta^{\alpha-1} (1-\theta)^{\beta-1}$$
+            <div class="callout callout-proof">
+                <div class="callout-title">Dedução Analítica da Posteriori e da Preditiva</div>
+                Multiplicando os núcleos:
+                $$p(\theta \mid x) \propto l(\theta; x) p(\theta) \propto [\theta^x (1-\theta)^{n-x}] [\theta^{\alpha-1} (1-\theta)^{\beta-1}] = \theta^{(\alpha + x) - 1} (1-\theta)^{(\beta + n - x) - 1}$$
+                Reconhecemos imediatamente o núcleo de uma densidade Beta. Logo:
+                $$\theta \mid x \sim \text{Beta}(\alpha + x, \, \beta + n - x)$$
+                A média a posteriori expressa-se como uma combinação convexa ponderada:
+                $$E[\theta \mid x] = \frac{\alpha + x}{\alpha + \beta + n} = \left(\frac{\alpha + \beta}{\alpha + \beta + n}\right) \frac{\alpha}{\alpha + \beta} + \left(\frac{n}{\alpha + \beta + n}\right) \frac{x}{n}$$
+                onde os hiperparâmetros $(\alpha, \beta)$ representam "sucessos virtuais" e "fracassos virtuais" a priori.<br><br>
+                <strong>Distribuição Preditiva para nova observação $Y \in \{0, 1\}$:</strong>
+                $$P(Y=1 \mid x) = \int_0^1 P(Y=1 \mid \theta) p(\theta \mid x) d\theta = \int_0^1 \theta p(\theta \mid x) d\theta = E[\theta \mid x] = \frac{\alpha + x}{\alpha + \beta + n}$$
+                Para uma nova amostra de contagem de tamanho $m$, a preditiva assume a distribuição Beta-Binomial:
+                $$p(y \mid x) = \binom{m}{y} \frac{B(\alpha + x + y, \, \beta + n - x + m - y)}{B(\alpha + x, \, \beta + n - x)}$$
+            </div>
+
+            <!-- PAR 2: GAMA-POISSON -->
+            <h3 class="subsubsection-title">Par 2: Modelo Poisson com Priori Gama</h3>
+            <p>Seja $x = (x_1, \dots, x_n)$ uma amostra i.i.d. com $X_i \sim \text{Pois}(\theta)$, $\theta > 0$. Adotamos uma priori conjugada $\theta \sim \text{Gama}(\alpha, \beta)$:</p>
+            $$l(\theta; x) = \prod_{i=1}^n \frac{e^{-\theta} \theta^{x_i}}{x_i!} \propto e^{-n\theta} \theta^{\sum x_i}, \quad p(\theta) \propto \theta^{\alpha-1} e^{-\beta\theta}$$
+            <div class="callout callout-proof">
+                <div class="callout-title">Dedução Analítica da Posteriori e da Preditiva</div>
+                Multiplicando os termos da posteriori:
+                $$p(\theta \mid x) \propto [e^{-n\theta} \theta^{\sum x_i}] [\theta^{\alpha-1} e^{-\beta\theta}] = \theta^{(\alpha + \sum x_i) - 1} \exp\{-(\beta + n)\theta\}$$
+                O núcleo é univocamente identificado como pertencente à distribuição Gama:
+                $$\theta \mid x \sim \text{Gama}\left(\alpha + \sum_{i=1}^n x_i, \; \beta + n\right)$$
+                A média a posteriori é expressa por:
+                $$E[\theta \mid x] = \frac{\alpha + \sum x_i}{\beta + n} = \left(\frac{\beta}{\beta + n}\right)\frac{\alpha}{\beta} + \left(\frac{n}{\beta + n}\right)\bar{x}$$
+                <strong>Distribuição Preditiva para nova observação $Y \in \{0, 1, 2, \dots\}$:</strong>
+                $$\begin{aligned}
+                p(y \mid x) &= \int_0^\infty \frac{e^{-\theta}\theta^y}{y!} \frac{(\beta+n)^{\alpha+\sum x}}{\Gamma(\alpha+\sum x)} \theta^{\alpha+\sum x - 1} e^{-(\beta+n)\theta} d\theta \\
+                &= \frac{(\beta+n)^{\alpha+\sum x}}{y! \Gamma(\alpha+\sum x)} \int_0^\infty \theta^{(\alpha+\sum x + y) - 1} e^{-(\beta+n+1)\theta} d\theta \\
+                &= \frac{(\beta+n)^{\alpha+\sum x}}{y! \Gamma(\alpha+\sum x)} \frac{\Gamma(\alpha+\sum x + y)}{(\beta+n+1)^{\alpha+\sum x + y}}
+                \end{aligned}$$
+                Reconhecemos a <strong>Binomial Negativa</strong> $\text{BN}\left(r = \alpha + \sum x_i, \, p = \frac{\beta+n}{\beta+n+1}\right)$.
+            </div>
+
+            <!-- PAR 3: NORMAL-NORMAL (VARIÂNCIA CONHECIDA) -->
+            <h3 class="subsubsection-title">Par 3: Modelo Normal com Variância $\sigma^2$ Conhecida (Priori Normal)</h3>
+            <p>Seja $X \sim N(\theta, \sigma^2)$ com variância conhecida. Seja a precisão amostral unitária $\tau = \sigma^{-2}$ e o tamanho amostral $n$. Adotamos uma priori conjugada Normal $\theta \sim N(\mu_0, \tau_0^{-1})$, onde $\tau_0 = \sigma_0^{-2}$ é a precisão a priori.</p>
+            <div class="callout callout-proof">
+                <div class="callout-title">Dedução da Posteriori por Completamento de Quadrados</div>
+                A verossimilhança em função da média amostral $\bar{x}$ é:
+                $$l(\theta; x) \propto \exp\left\{ -\frac{n\tau}{2}(\theta - \bar{x})^2 \right\} \propto \exp\left\{ -\frac{n\tau}{2}(\theta^2 - 2\theta\bar{x}) \right\}$$
+                A priori Normal possui o núcleo:
+                $$p(\theta) \propto \exp\left\{ -\frac{\tau_0}{2}(\theta - \mu_0)^2 \right\} \propto \exp\left\{ -\frac{\tau_0}{2}(\theta^2 - 2\theta\mu_0) \right\}$$
+                Multiplicando ambas e agrupando os expoentes:
+                $$p(\theta \mid x) \propto \exp\left\{ -\frac{1}{2} \left[ (\tau_0 + n\tau)\theta^2 - 2(\tau_0 \mu_0 + n\tau \bar{x})\theta \right] \right\}$$
+                Definindo a precisão a posteriori como a soma das precisões: $\tau_1 = \tau_0 + n\tau = \tau_0 + \frac{n}{\sigma^2}$, e a média a posteriori $\mu_1 = \frac{\tau_0 \mu_0 + n\tau \bar{x}}{\tau_1}$, completamos o quadrado perfeito:
+                $$p(\theta \mid x) \propto \exp\left\{ -\frac{\tau_1}{2}(\theta - \mu_1)^2 \right\} \implies \theta \mid x \sim N\left(\mu_1, \, \tau_1^{-1}\right)$$
+                onde:
+                $$\mu_1 = w \mu_0 + (1-w) \bar{x}, \quad \text{com } w = \frac{\tau_0}{\tau_0 + n\tau} \in (0, 1)$$
+                <strong>Preditiva a Posteriori para $Y \sim N(\theta, \sigma^2)$:</strong> Como $Y = \theta + \epsilon$ onde $\theta \mid x \sim N(\mu_1, \tau_1^{-1})$ e $\epsilon \sim N(0, \sigma^2)$ são independentes:
+                $$Y \mid x \sim N\left(\mu_1, \; \sigma^2 + \tau_1^{-1}\right)$$
+            </div>
+
+            <!-- PAR 4: NORMAL COM MÉDIA CONHECIDA E VARIÂNCIA DESCONHECIDA -->
+            <h3 class="subsubsection-title">Par 4: Modelo Normal com Média $\mu$ Conhecida e Variância Desconhecida</h3>
+            <p>Seja $X_i \sim N(\mu, \phi^{-1})$, onde $\mu$ é conhecido e a precisão $\phi = \sigma^{-2}$ é o parâmetro de interesse. A verossimilhança é:</p>
+            $$l(\phi; x) \propto \phi^{n/2} \exp\left\{ -\frac{\phi}{2} \sum_{i=1}^n (x_i - \mu)^2 \right\}$$
+            <p>A priori conjugada natural para $\phi$ é uma distribuição $\text{Gama}(\alpha_0, \beta_0)$. A posteriori resultante é:</p>
+            $$\phi \mid x \sim \text{Gama}\left(\alpha_0 + \frac{n}{2}, \; \beta_0 + \frac{1}{2}\sum_{i=1}^n (x_i - \mu)^2\right)$$
+            <p>Caso se prefira parametrizar em termos da variância $\sigma^2 = \phi^{-1}$, a distribuição conjugada correspondente é a <strong>Inversa-Gama</strong>: $\sigma^2 \sim \text{Inv-Gama}(\alpha_0, \beta_0)$.</p>
+
+            <!-- PAR 5: NORMAL COM MÉDIA E VARIÂNCIA DESCONHECIDAS (NORMAL-GAMA) -->
+            <h3 class="subsubsection-title">Par 5: Modelo Normal com Média e Variância Desconhecidas (Priori Normal-Gama)</h3>
+            <p>Quando ambos os parâmetros $(\mu, \phi)$ são desconhecidos, a dependência matemática entre média e variância exige uma especificação conjunta condicional:</p>
+            $$\mu \mid \phi \sim N\left(\mu_0, \, (\kappa_0 \phi)^{-1}\right) \quad \text{e} \quad \phi \sim \text{Gama}\left(\frac{\nu_0}{2}, \, \frac{\nu_0 \sigma_0^2}{2}\right)$$
+            <p>A densidade conjunta a priori é a distribuição <strong>Normal-Gama</strong>: $(\mu, \phi) \sim \text{NG}(\mu_0, \kappa_0, \nu_0, \sigma_0^2)$. Ao observar $n$ dados com média amostral $\bar{x}$ e soma de quadrados residuais $SS = \sum (x_i - \bar{x})^2$:</p>
+            $$\begin{aligned}
+            \mu_n &= \frac{\kappa_0 \mu_0 + n\bar{x}}{\kappa_0 + n}, \quad \kappa_n = \kappa_0 + n, \quad \nu_n = \nu_0 + n \\
+            \nu_n \sigma_n^2 &= \nu_0 \sigma_0^2 + SS + \frac{\kappa_0 n}{\kappa_0 + n}(\bar{x} - \mu_0)^2
+            \end{aligned}$$
+            <div class="callout callout-theo">
+                <div class="callout-title">Teorema: Distribuições Marginais a Posteriori</div>
+                Integrando a distribuição conjunta Normal-Gama em relação a $\phi$, deduz-se que a distribuição marginal a posteriori para a média populacional $\mu$ é exatamente uma <strong>$t$ de Student</strong> não-padronizada:
+                $$\mu \mid x \sim t_{\nu_n}\left(\mu_n, \; \frac{\sigma_n^2}{\kappa_n}\right)$$
+                E integrando em relação a $\mu$, a marginal da precisão é:
+                $$\phi \mid x \sim \text{Gama}\left(\frac{\nu_n}{2}, \; \frac{\nu_n \sigma_n^2}{2}\right)$$
+            </div>
+
+            <!-- PAR 6: MULTINOMIAL-DIRICHLET -->
+            <h3 class="subsubsection-title">Par 6: Modelo Multinomial com Priori Dirichlet</h3>
+            <p>Seja $X = (X_1, \dots, X_m) \sim \text{Mult}(n, \boldsymbol{\theta})$, com $\sum X_j = n$ e $\sum \theta_j = 1$. Especificamos uma priori conjugada $\boldsymbol{\theta} \sim \text{Dirichlet}(\alpha_1, \dots, \alpha_m)$:</p>
+            $$l(\boldsymbol{\theta}; x) \propto \prod_{j=1}^m \theta_j^{x_j}, \quad p(\boldsymbol{\theta}) \propto \prod_{j=1}^m \theta_j^{\alpha_j - 1}$$
+            <p>A distribuição a posteriori pertence diretamente à família Dirichlet:</p>
+            $$\boldsymbol{\theta} \mid x \sim \text{Dirichlet}(\alpha_1 + x_1, \, \alpha_2 + x_2, \, \dots, \, \alpha_m + x_m)$$
+            <p>A média a posteriori para a $j$-ésima categoria é:</p>
+            $$E[\theta_j \mid x] = \frac{\alpha_j + x_j}{\sum_{l=1}^m (\alpha_l + x_l)} = \frac{\alpha_j + x_j}{\alpha_0 + n}$$
+
+            <!-- ========================================================================= -->
+            <!-- CAPÍTULO 4: ESTIMAÇÃO E TEORIA DA DECISÃO                                -->
+            <!-- ========================================================================= -->
+            <h1 id="teoria-decisao" class="section-title">4. Estimação e Teoria da Decisão</h1>
+
+            <h2 class="subsection-title">4.1 Elementos da Teoria da Decisão Estatística</h2>
+
+            <p>A inferência estatística sob o ponto de vista operacional é um problema de tomada de decisão em condições de incerteza. A formalização da Teoria da Decisão (fundada por Abraham Wald) é estruturada pelos seguintes elementos:</p>
+            <ul>
+                <li><strong>Espaço Paramétrico $\Theta$:</strong> O conjunto de todos os possíveis estados da natureza ou valores dos parâmetros $\theta$.</li>
+                <li><strong>Espaço Amostral $\Omega$:</strong> O conjunto de todas as realizações amostrais possíveis $x$.</li>
+                <li><strong>Espaço de Ações $\mathcal{A}$:</strong> O conjunto de decisões ou estimativas $a = \delta(x)$ que o estatístico pode adotar.</li>
+                <li><strong>Função de Perda $L(\theta, a) \ge 0$:</strong> Mede a consequência negativa, penalidade ou custo de adotar a ação $a$ quando o verdadeiro estado da natureza é $\theta$. Convenciona-se que $L(\theta, \theta) = 0$.</li>
+            </ul>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definições Fundamentais: Risco Frequentista, Risco a Posteriori e Risco de Bayes</div>
+                <p><strong>1. Função de Risco Frequentista $R(\theta, \delta)$:</strong> É a perda média de longo prazo esperada sob repetições da amostragem, calculada integrando sobre o espaço amostral $\Omega$ para um $\theta$ fixo:
+                $$R(\theta, \delta) = E_{X \mid \theta}[L(\theta, \delta(X))] = \int_\Omega L(\theta, \delta(x)) p(x \mid \theta) \, dx$$</p>
+                <p><strong>2. Risco a Posteriori (Perda Esperada a Posteriori) $\rho(\delta, x)$:</strong> É a perda esperada condicionada aos dados concretos observados $x$, calculada integrando sobre a distribuição a posteriori $p(\theta \mid x)$:
+                $$\rho(\delta, x) = E_{\theta \mid x}[L(\theta, \delta(x))] = \int_\Theta L(\theta, \delta(x)) p(\theta \mid x) \, d\theta$$</p>
+                <p><strong>3. Risco de Bayes Global $r(\pi, \delta)$:</strong> É a média do risco frequentista ponderada pela distribuição a priori $\pi(\theta)$:
+                $$r(\pi, \delta) = E_\theta[R(\theta, \delta)] = \int_\Theta R(\theta, \delta) \pi(\theta) \, d\theta = \int_\Omega \rho(\delta, x) p(x) \, dx$$</p>
+            </div>
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Teorema: Princípio da Regra de Decisão de Bayes</div>
+                Uma regra de decisão $\delta^*(x)$ minimiza o Risco de Bayes global $r(\pi, \delta)$ se, e somente se, para cada $x$ observado, a ação $\delta^*(x) = a$ minimiza pontualmente o risco a posteriori $\rho(a, x)$:
+                $$\delta^*(x) = \arg\min_{a \in \mathcal{A}} \int_\Theta L(\theta, a) p(\theta \mid x) \, d\theta$$
+            </div>
+
+            <h2 id="estimadores-pontuais" class="subsection-title">4.2 Estimadores Pontuais de Bayes e Deduções Rigorosas</h2>
+
+            <p>O estimador pontual ótimo depende intrinsecamente da forma geométrica da função de perda adotada:</p>
+
+            <!-- PERDA QUADRÁTICA -->
+            <h3 class="subsubsection-title">1. Perda Quadrática $\rightarrow$ Média a Posteriori</h3>
+            <p>A perda quadrática $L(\theta, a) = (a - \theta)^2$ penaliza erros grandes de forma quadrática e simétrica.</p>
+            <div class="callout callout-proof">
+                <div class="callout-title">Dedução Formal</div>
+                O risco a posteriori é:
+                $$\rho(a, x) = \int_\Theta (a - \theta)^2 p(\theta \mid x) d\theta = a^2 \int p(\theta \mid x) d\theta - 2a \int \theta p(\theta \mid x) d\theta + \int \theta^2 p(\theta \mid x) d\theta$$
+                Derivando em relação a $a$ e igualando a zero:
+                $$\frac{\partial \rho(a, x)}{\partial a} = 2a (1) - 2 E[\theta \mid x] = 0 \implies \hat{\theta}_{\text{Bayes}} = E[\theta \mid x] = \int_\Theta \theta p(\theta \mid x) \, d\theta$$
+                Como a segunda derivada é $\frac{\partial^2 \rho}{\partial a^2} = 2 > 0$, o ponto crítico é estritamente um mínimo global.<br>
+                O risco mínimo a posteriori resultante coincide exatamente com a <strong>variância a posteriori</strong>:
+                $$\rho(\hat{\theta}_{\text{Bayes}}, x) = \text{Var}(\theta \mid x)$$
+            </div>
+
+            <!-- PERDA ABSOLUTA -->
+            <h3 class="subsubsection-title">2. Perda Linear Absoluta $\rightarrow$ Mediana a Posteriori</h3>
+            <p>A perda absoluta $L(\theta, a) = |a - \theta|$ penaliza os desvios proporcionalmente à sua magnitude, conferindo robustez contra caudas pesadas e observações atípicas.</p>
+            <div class="callout callout-proof">
+                <div class="callout-title">Dedução Formal pela Regra de Leibniz</div>
+                O risco a posteriori particiona-se em dois intervalos em torno de $a$:
+                $$\rho(a, x) = \int_{-\infty}^\infty |a - \theta| p(\theta \mid x) d\theta = \int_{-\infty}^a (a - \theta) p(\theta \mid x) d\theta + \int_a^\infty (\theta - a) p(\theta \mid x) d\theta$$
+                Aplicando a Regra de Leibniz para derivação de integrais com limites variáveis:
+                $$\frac{\partial}{\partial a} \left[ \int_{-\infty}^a (a - \theta) p(\theta \mid x) d\theta \right] = (a - a) p(a \mid x) \cdot 1 + \int_{-\infty}^a 1 \cdot p(\theta \mid x) d\theta = P(\theta \le a \mid x)$$
+                $$\frac{\partial}{\partial a} \left[ \int_a^\infty (\theta - a) p(\theta \mid x) d\theta \right] = -(a - a) p(a \mid x) \cdot 1 + \int_a^\infty (-1) \cdot p(\theta \mid x) d\theta = - P(\theta > a \mid x)$$
+                Somando as duas parcelas e igualando a zero:
+                $$\frac{\partial \rho(a, x)}{\partial a} = P(\theta \le a \mid x) - P(\theta > a \mid x) = 0$$
+                Como $P(\theta > a \mid x) = 1 - P(\theta \le a \mid x)$, temos:
+                $$P(\theta \le a \mid x) - [1 - P(\theta \le a \mid x)] = 0 \implies 2 P(\theta \le a \mid x) = 1 \implies P(\theta \le \hat{\theta}_{\text{Bayes}} \mid x) = \frac{1}{2}$$
+                Logo, $\hat{\theta}_{\text{Bayes}}$ é rigorosamente a <strong>Mediana a posteriori</strong> de $\theta$.
+            </div>
+
+            <!-- PERDA ZERO-UM -->
+            <h3 class="subsubsection-title">3. Perda Zero-Um (0-1) $\rightarrow$ Moda a Posteriori (MAP / EMVG)</h3>
+            <p>A perda zero-um tolera pequenos erros dentro de uma vizinhança de raio $\epsilon > 0$, aplicando penalidade máxima unitária para qualquer desvio superior:</p>
+            $$L_\epsilon(\theta, a) = \begin{cases} 0, & \text{se } |\theta - a| \le \epsilon \\ 1, & \text{se } |\theta - a| > \epsilon \end{cases}$$
+            <div class="callout callout-proof">
+                <div class="callout-title">Dedução no Limite Infinitesimal</div>
+                O risco a posteriori corresponde a:
+                $$\rho(a, x) = \int_{|\theta-a| > \epsilon} 1 \cdot p(\theta \mid x) d\theta = 1 - \int_{a-\epsilon}^{a+\epsilon} p(\theta \mid x) d\theta$$
+                Minimizar $\rho(a, x)$ equivale a maximizar a integral de massa de probabilidade em torno de $a$:
+                $$\max_a \int_{a-\epsilon}^{a+\epsilon} p(\theta \mid x) d\theta$$
+                Pelo Teorema do Valor Médio para integrais, quando $\epsilon \to 0$:
+                $$\int_{a-\epsilon}^{a+\epsilon} p(\theta \mid x) d\theta \approx 2\epsilon \cdot p(a \mid x)$$
+                Portanto, maximizar a probabilidade no limite $\epsilon \to 0$ consiste em maximizar diretamente a própria função densidade a posteriori:
+                $$\hat{\theta}_{\text{MAP}} = \arg\max_{a \in \Theta} p(a \mid x) = \arg\max_\theta [l(\theta; x) p(\theta)]$$
+                Este estimador é a <strong>Moda a Posteriori</strong>, também denominado <strong>Estimador de Máxima Verossimilhança Generalizado (EMVG)</strong>. Note que sob priori uniforme $p(\theta) \propto c$, o MAP coincide numericamente com o Estimador de Máxima Verossimilhança (EMV) clássico.
+            </div>
+
+            <h2 id="estimacao-intervalar" class="subsection-title">4.3 Estimação Intervalar: Intervalos de Credibilidade e Regiões HPD</h2>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definição: Intervalo de Credibilidade Bayesiano</div>
+                Um subconjunto $C \subset \Theta$ é denominado um <strong>Intervalo de Credibilidade de $100(1-\alpha)\%$</strong> para o parâmetro $\theta$ se a probabilidade a posteriori de $\theta$ pertencer a $C$ é de pelo menos $1 - \alpha$:
+                $$P(\theta \in C \mid x) = \int_C p(\theta \mid x) \, d\theta \ge 1 - \alpha$$
+                Ao contrário do Intervalo de Confiança frequentista — no qual os limites são aleatórios e o parâmetro é fixo —, no Intervalo de Credibilidade os limites são fixos após os dados e afirma-se legitimamente que <em>a probabilidade do parâmetro estar dentro de $C$ é de $(1-\alpha)$</em>.
+            </div>
+
+            <p>Existem dois métodos principais para a construção de intervalos de credibilidade univariados:</p>
+            <ul>
+                <li><strong>Intervalos de Caudas Iguais (Equi-tailed):</strong> Define-se o intervalo $[\theta_{\alpha/2}, \theta_{1-\alpha/2}]$ utilizando diretamente os quantis da distribuição a posteriori:
+                $$\int_{-\infty}^{\theta_{\alpha/2}} p(\theta \mid x) d\theta = \frac{\alpha}{2} \quad \text{e} \quad \int_{\theta_{1-\alpha/2}}^\infty p(\theta \mid x) d\theta = \frac{\alpha}{2}$$
+                São de cálculo analítico ou numérico imediato e invariantes sob transformações monótonas de $\theta$.</li>
+                <li><strong>Regiões de Maior Densidade a Posteriori (HPD / MDP):</strong> Buscam o conjunto com maior concentração de probabilidade e menor comprimento/volume.</li>
+            </ul>
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Teorema: Região de Maior Densidade a Posteriori (HPD) e Propriedade de Comprimento Mínimo</div>
+                Uma região $C \subset \Theta$ é dita uma <strong>região HPD de nível $1-\alpha$</strong> se:
+                $$C = \{ \theta \in \Theta : p(\theta \mid x) \ge k_\alpha \}$$
+                onde $k_\alpha$ é a maior constante real que garante $P(\theta \in C \mid x) = 1 - \alpha$.<br><br>
+                <strong>Propriedades Fundamentais do HPD:</strong>
+                <ol>
+                    <li><strong>Comprimento/Volume Mínimo:</strong> Entre todas as regiões $C' \subset \Theta$ com credibilidade $1-\alpha$, a região HPD possui a <em>menor medida de Lebesgue</em> (menor comprimento em $\mathbb{R}$ ou volume em $\mathbb{R}^d$).</li>
+                    <li><strong>Densidade Superior:</strong> Todo ponto pertencente a $C$ possui densidade a posteriori maior ou igual a qualquer ponto fora de $C$: $\forall \theta_1 \in C, \forall \theta_2 \notin C \implies p(\theta_1 \mid x) \ge p(\theta_2 \mid x)$.</li>
+                    <li><strong>Multimodalidade:</strong> Se a distribuição a posteriori for multimodal, a região HPD pode consistir na união disjunta de intervalos isolados, refletindo com fidelidade a topologia da incerteza (ao passo que o intervalo de caudas iguais é forçado a cobrir regiões de densidade quase nula entre os picos).</li>
+                </ol>
+            </div>
+
+            <h2 id="testes-hipoteses" class="subsection-title">4.4 Testes de Hipóteses Bayesianos e o Fator de Bayes</h2>
+
+            <p>Seja a comparação entre duas hipóteses concorrentes, $H_0: \theta \in \Theta_0$ e $H_1: \theta \in \Theta_1$, com $\Theta_0 \cap \Theta_1 = \emptyset$. Atribuem-se probabilidades a priori $P(H_0)$ e $P(H_1) = 1 - P(H_0)$, e densidades a priori condicionais $p(\theta \mid H_0)$ e $p(\theta \mid H_1)$.</p>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definição: Fator de Bayes e Razão de Chances</div>
+                A <strong>Razão de Chances a Priori</strong> (*Prior Odds*) é $O(H_1, H_0) = \frac{P(H_1)}{P(H_0)}$.<br>
+                A <strong>Razão de Chances a Posteriori</strong> (*Posterior Odds*) é dada por:
+                $$O(H_1, H_0 \mid x) = \frac{P(H_1 \mid x)}{P(H_0 \mid x)} = \frac{P(H_1)}{P(H_0)} \times \underbrace{\frac{p(x \mid H_1)}{p(x \mid H_0)}}_{B_{10}(x)}$$
+                onde $B_{10}(x)$ é o <strong>Fator de Bayes</strong> em favor de $H_1$, definido como a razão entre as verossimilhanças marginais dos dados sob cada modelo:
+                $$B_{10}(x) = \frac{\int_{\Theta_1} p(x \mid \theta) p(\theta \mid H_1) \, d\theta}{\int_{\Theta_0} p(x \mid \theta) p(\theta \mid H_0) \, d\theta}$$
+            </div>
+
+            <p>O Fator de Bayes quantifica em que medida os dados observados alteraram o balanço relativo de evidência em favor de uma hipótese em detrimento da outra. Jeffreys (1961), com calibrações posteriores de Kass e Raftery (1995), propôs a seguinte escala interpretativa:</p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fator de Bayes $B_{10}$</th>
+                            <th>$2 \log_e(B_{10})$</th>
+                            <th>Força da Evidência em favor de $H_1$</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>$1$ a $3$</td>
+                            <td>$0$ a $2$</td>
+                            <td>Apenas anedótica / Merece pouco mais que uma menção</td>
+                        </tr>
+                        <tr>
+                            <td>$3$ a $10$</td>
+                            <td>$2$ a $6$</td>
+                            <td>Substancial / Positiva</td>
+                        </tr>
+                        <tr>
+                            <td>$10$ a $30$</td>
+                            <td>$6$ a $10$</td>
+                            <td>Forte</td>
+                        </tr>
+                        <tr>
+                            <td>$30$ a $100$</td>
+                            <td>$10$ a $13$</td>
+                            <td>Muito Forte</td>
+                        </tr>
+                        <tr>
+                            <td>$> 100$</td>
+                            <td>$> 13$</td>
+                            <td>Decisiva</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="callout callout-warn">
+                <div class="callout-title">Hipóteses Pontuais e o Paradoxo de Lindley-Jeffreys</div>
+                Para testar uma hipótese pontual nula estrita $H_0: \theta = \theta_0$ contra $H_1: \theta \neq \theta_0$ onde $\theta$ é contínuo, a medida de Lebesgue de um ponto isolado é nula ($P(\theta = \theta_0) = 0$). Na formulação clássica bayesiana, atribui-se uma <strong>massa de Dirac pontual</strong> $P(H_0) = \pi_0 > 0$ em $\theta_0$ combinada com uma densidade contínua sob $H_1$.<br>
+                Contudo, surge o <em>Paradoxo de Lindley-Jeffreys</em>: se adotamos sob $H_1$ uma priori vaga com dispersão infinita ($\sigma_0^2 \to \infty$), o denominador da evidência marginal diverge, fazendo com que $B_{10} \to 0$. Ou seja, <em>a evidência bayesiana apoiará $H_0$ com certeza arbitrária mesmo quando o teste frequentista rejeitar $H_0$ com nível de significância minúsculo</em> ($p < 0.001$).<br><br>
+                <strong>Alternativa Moderna — FBST (Full Bayesian Significance Test):</strong> Proposto por Carlos Pereira e Julio Stern (1999), o FBST testa hipóteses pontuais sem recorrer a massas de Dirac artificiais. Ele calcula a medida de evidência $e$-value $Ev(H_0)$, integrando a posteriori sobre o conjunto de tangência $\{ \theta : p(\theta \mid x) > \sup_{\theta_0 \in \Theta_0} p(\theta_0 \mid x) \}$, preservando a natureza contínua do espaço paramétrico.
+            </div>
+
+            <!-- ========================================================================= -->
+            <!-- CAPÍTULO 5: COMPUTAÇÃO BAYESIANA E MÉTODOS APROXIMADOS                    -->
+            <!-- ========================================================================= -->
+            <h1 id="monte-carlo-simples" class="section-title">5. Computação Bayesiana e Métodos Aproximados</h1>
+
+            <h2 class="subsection-title">5.1 A Barreira da Integração em Alta Dimensão</h2>
+
+            <p>Na quase totalidade dos modelos bayesianos aplicados fora da família conjugada exponencial, a constante de normalização $p(x) = \int p(x|\theta)p(\theta)d\theta$ e as esperanças a posteriori $E[g(\theta) \mid x] = \int g(\theta) p(\theta \mid x) d\theta$ consistem em <strong>integrais em espaços de alta dimensão analiticamente intratáveis</strong>.</p>
+            <p>Métodos clássicos de quadratura numérica determinística (como Simpson ou Gauss-Hermite) sucumbem à <em>maldição da dimensionalidade</em>: para dimensionar uma malha de $K$ pontos em $d$ parâmetros, o custo computacional explode a uma taxa exponencial $\mathcal{O}(K^d)$. A superação desse gargalo reside no uso de métodos estocásticos de simulação.</p>
+
+            <h2 class="subsection-title">5.2 Método de Monte Carlo Simples</h2>
+
+            <p>Seja a meta aproximar a esperança $I = E[g(\theta)] = \int g(\theta) p(\theta \mid x) d\theta$. Se for possível gerar uma amostra aleatória i.i.d. de vetores $\{\theta^{(1)}, \dots, \theta^{(N)}\}$ diretamente da distribuição alvo $p(\theta \mid x)$, construímos o <strong>estimador de Monte Carlo</strong>:</p>
+            $$\hat{I}_N = \frac{1}{N} \sum_{t=1}^N g(\theta^{(t)})$$
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Propriedades Teóricas do Estimador de Monte Carlo</div>
+                <ol>
+                    <li><strong>Não-viciado:</strong> $E[\hat{I}_N] = \frac{1}{N} \sum E[g(\theta^{(t)})] = I$.</li>
+                    <li><strong>Consistência Forte:</strong> Pela Lei Forte dos Grandes Números de Kolmogorov, o estimador converge quase certamente para o verdadeiro valor:
+                    $$\hat{I}_N \xrightarrow{\text{q.c.}} I \quad \text{conforme } N \to \infty$$</li>
+                    <li><strong>Erro Padrão de Monte Carlo (MCSE):</strong> Pelo Teorema Central do Limite, a distribuição do erro de estimação é assintoticamente normal com variância decaindo a uma taxa independente da dimensão:
+                    $$\sqrt{N}(\hat{I}_N - I) \xrightarrow{D} N\left(0, \sigma_g^2\right) \implies \text{MCSE} = \frac{\hat{\sigma}_g}{\sqrt{N}}$$
+                    onde $\hat{\sigma}_g^2 = \frac{1}{N-1}\sum_{t=1}^N (g(\theta^{(t)}) - \hat{I}_N)^2$. A precisão da aproximação depende unicamente do número de simulações $N$, e não da dimensionalidade do espaço.</li>
+                </ol>
+            </div>
+
+            <h2 id="importancia-sir" class="subsection-title">5.3 Amostragem por Importância (Importance Sampling) e SIR</h2>
+
+            <p>Quando a amostragem direta de $p(\theta \mid x)$ é inviável, introduzimos uma <strong>densidade instrumental auxiliar</strong> (ou densidade proposta) $q(\theta)$, cujo suporte contém o suporte de $p$ ($q(\theta) > 0$ sempre que $p(\theta \mid x) > 0$). Reescrevemos a integral através de uma mudança de medida:</p>
+            $$I = \int g(\theta) p(\theta \mid x) d\theta = \int g(\theta) \frac{p(\theta \mid x)}{q(\theta)} q(\theta) \, d\theta = E_q\left[ g(\theta) \frac{p(\theta \mid x)}{q(\theta)} \right]$$
+
+            <p>Se a constante de normalização da posteriori for desconhecida (isto é, conhecemos apenas o núcleo $p^*(\theta \mid x) = l(\theta; x)p(\theta)$), calculamos os <strong>pesos de importância não normalizados</strong> $w(\theta) = \frac{p^*(\theta \mid x)}{q(\theta)}$ e empregamos o estimador de razão ponderada:</p>
+            $$\hat{I}_{\text{IS}} = \sum_{t=1}^N W_t g(\theta^{(t)}), \quad \text{onde } W_t = \frac{w(\theta^{(t)})}{\sum_{j=1}^N w(\theta^{(j)})}$$
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Teorema: Densidade Instrumental Ótima</div>
+                A densidade proposta $q^*(\theta)$ que <strong>minimiza a variância</strong> do estimador de importância é proporcional ao produto da função de interesse com o alvo:
+                $$q^*(\theta) \propto |g(\theta)| p(\theta \mid x)$$
+                <em>Atenção crítica:</em> Na prática, as caudas de $q(\theta)$ devem ser necessariamente mais pesadas do que as de $p(\theta \mid x)$. Caso contrário, a razão $w(\theta) = p/q$ pode divergir em regiões raras, resultando em variância infinita do estimador.
+            </div>
+
+            <h3 class="subsubsection-title">Reamostragem Ponderada por Importância (SIR — Sampling Importance Resampling)</h3>
+            <p>O algoritmo SIR transforma uma amostra gerada da proposta $q(\theta)$ em uma amostra aproximadamente distribuída de acordo com a posteriori alvo $p(\theta \mid x)$:</p>
+            <ol>
+                <li>Gerar uma amostra independente de tamanho $M$: $\theta^{(1)}, \dots, \theta^{(M)} \sim q(\theta)$.</li>
+                <li>Calcular os pesos normalizados de importância: $W_i = \frac{p^*(\theta^{(i)} \mid x) / q(\theta^{(i)})}{\sum_{j=1}^M [p^*(\theta^{(j)} \mid x) / q(\theta^{(j)})]}$ para $i=1, \dots, M$.</li>
+                <li>Reamostrar $N$ valores (onde tipicamente $N \le M/10$) do conjunto discreto $\{\theta^{(1)}, \dots, \theta^{(M)}\}$ com probabilidades dadas por $\{W_1, \dots, W_M\}$. A amostra final converge em distribuição para $p(\theta \mid x)$ conforme $M/N \to \infty$.</li>
+            </ol>
+
+            <h2 id="metodo-rejeicao" class="subsection-title">5.4 Método da Rejeição (Accept-Reject Algorithm)</h2>
+
+            <p>O Método da Rejeição gera amostras exatas da distribuição alvo $p(\theta \mid x)$ através de uma densidade instrumental $q(\theta)$ escalada por uma constante envelope finita $M < \infty$ tal que:</p>
+            $$p(\theta \mid x) \le M \cdot q(\theta) \quad \forall \theta \in \Theta \implies M = \sup_{\theta \in \Theta} \frac{p(\theta \mid x)}{q(\theta)}$$
+
+            <div class="callout callout-proof">
+                <div class="callout-title">Algoritmo e Prova de Validade</div>
+                <strong>Passos do Algoritmo:</strong>
+                <ol>
+                    <li>Gerar um candidato $\theta^* \sim q(\theta)$.</li>
+                    <li>Gerar independentemente uma variável uniforme $U \sim \text{Uniforme}(0, 1)$.</li>
+                    <li>Se $U \le \frac{p(\theta^* \mid x)}{M \cdot q(\theta^*)}$, <strong>aceitar</strong> e definir $\theta^{(t)} = \theta^*$. Caso contrário, <strong>rejeitar</strong> e retornar ao Passo 1.</li>
+                </ol>
+                <strong>Prova:</strong> A distribuição condicional do candidato aceito satisfaz:
+                $$\begin{aligned}
+                P\left(\theta^* \le t \;\middle|\; U \le \frac{p(\theta^*)}{M q(\theta^*)}\right) &= \frac{P\left(\theta^* \le t, \, U \le \frac{p(\theta^*)}{M q(\theta^*)}\right)}{P\left(U \le \frac{p(\theta^*)}{M q(\theta^*)}\right)} \\
+                &= \frac{\int_{-\infty}^t \left[ \int_0^{p(\theta)/(Mq(\theta))} 1 \, du \right] q(\theta) \, d\theta}{\int_{-\infty}^\infty \left[ \int_0^{p(\theta)/(Mq(\theta))} 1 \, du \right] q(\theta) \, d\theta} = \frac{\frac{1}{M}\int_{-\infty}^t p(\theta) d\theta}{\frac{1}{M}\int_{-\infty}^\infty p(\theta) d\theta} = \int_{-\infty}^t p(\theta) d\theta \quad \blacksquare
+                \end{aligned}$$
+                A taxa média de aceitação global é rigorosamente $\frac{1}{M}$. Em altas dimensões, $M$ cresce exponencialmente, tornando a rejeição impraticável.
+            </div>
+
+            <h2 id="mcmc-fundamentos" class="subsection-title">5.5 Monte Carlo via Cadeias de Markov (MCMC)</h2>
+
+            <p>Os métodos MCMC contornam as limitações de alta dimensão construindo um processo estocástico ergódico — uma <strong>Cadeia de Markov</strong> em espaço contínuo $\{\theta^{(0)}, \theta^{(1)}, \theta^{(2)}, \dots\}$ — cuja <strong>distribuição de equilíbrio (estacionária)</strong> é precisamente a distribuição a posteriori de interesse $\pi(\theta) = p(\theta \mid x)$.</p>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Fundamentos: A Condição de Balanço Detalhado</div>
+                Seja $T(\theta \to \theta')$ a densidade do núcleo de transição da cadeia de Markov. A distribuição $\pi(\theta)$ é estacionária para a cadeia se satisfaz a equação de invariância $\pi(\theta') = \int \pi(\theta) T(\theta \to \theta') d\theta$.<br>
+                Uma condição suficiente (e amplamente utilizada) para garantir a estacionariedade é o <strong>Balanço Detalhado (Reversibilidade)</strong>:
+                $$\pi(\theta) T(\theta \to \theta') = \pi(\theta') T(\theta' \to \theta) \quad \forall \theta, \theta' \in \Theta$$
+                Se uma cadeia de Markov for <em>irredutível</em> (pode atingir qualquer conjunto com probabilidade positiva), <em>aperiódica</em> e satisfizer o balanço detalhado com respeito a $\pi(\theta)$, então pelo Teorema Ergódico a distribuição marginal da cadeia converge para $\pi(\theta)$ independentemente do ponto de partida $\theta^{(0)}$:
+                $$\lim_{t \to \infty} P(\theta^{(t)} \in A \mid \theta^{(0)}) = \int_A \pi(\theta) \, d\theta$$
+            </div>
+
+            <h2 id="metropolis-hastings" class="subsection-title">5.6 O Algoritmo de Metropolis-Hastings</h2>
+
+            <p>Introduzido por Metropolis et al. (1953) e generalizado por Hastings (1970), o algoritmo divide o núcleo de transição em duas etapas: geração de um candidato via densidade de proposta arbitrária $q(\theta' \mid \theta)$ e um mecanismo de filtragem probabilística por meio de uma probabilidade de aceitação $\alpha(\theta, \theta')$.</p>
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Teorema e Dedução: Probabilidade de Aceitação de Metropolis-Hastings</div>
+                O núcleo de transição efetivo para $\theta' \neq \theta$ é $T(\theta \to \theta') = q(\theta' \mid \theta) \alpha(\theta, \theta')$.<br>
+                Para satisfazer o Balanço Detalhado com a posteriori $\pi(\theta) \propto p(x \mid \theta)p(\theta)$:
+                $$\pi(\theta) q(\theta' \mid \theta) \alpha(\theta, \theta') = \pi(\theta') q(\theta \mid \theta') \alpha(\theta', \theta)$$
+                Rearranjando a razão de aceitação:
+                $$\frac{\alpha(\theta, \theta')}{\alpha(\theta', \theta)} = \frac{\pi(\theta') q(\theta \mid \theta')}{\pi(\theta) q(\theta' \mid \theta)}$$
+                Para maximizar a movimentação da cadeia mantendo a probabilidade no intervalo $[0, 1]$, define-se a solução ótima de Hastings:
+                $$\alpha(\theta, \theta') = \min\left( 1, \; \frac{\pi(\theta') q(\theta \mid \theta')}{\pi(\theta) q(\theta' \mid \theta)} \right) = \min\left( 1, \; \frac{p(x \mid \theta') p(\theta') q(\theta \mid \theta')}{p(x \mid \theta) p(\theta) q(\theta' \mid \theta)} \right)$$
+                <strong>Propriedade essencial:</strong> A constante normalizadora desconhecida de $\pi(\theta)$ simplesmente se cancela no quociente $\frac{\pi(\theta')}{\pi(\theta)}$, tornando o método plenamente executável sem o cálculo de integrais complexas.
+            </div>
+
+            <h3 class="subsubsection-title">Variantes do Algoritmo Metropolis-Hastings</h3>
+            <ul>
+                <li><strong>Metropolis Original (Proposta Simétrica):</strong> Se $q(\theta' \mid \theta) = q(\theta \mid \theta')$, os termos da proposta se cancelam e a razão reduz-se a:
+                $$\alpha(\theta, \theta') = \min\left( 1, \; \frac{\pi(\theta')}{\pi(\theta)} \right)$$</li>
+                <li><strong>Passeio Aleatório (Random Walk Metropolis):</strong> O candidato é gerado por $\theta' = \theta^{(t)} + \boldsymbol{\epsilon}$, onde $\boldsymbol{\epsilon} \sim N(\mathbf{0}, \boldsymbol{\Sigma})$. Roberts et al. (1997) demonstraram que a taxa de aceitação assintótica ótima para eficiência do Random Walk em altas dimensões é de aproximadamente <strong>$23.4\%$</strong>.</li>
+                <li><strong>Proposta Independente:</strong> O candidato independe da posição atual da cadeia: $q(\theta' \mid \theta) = q(\theta')$. A razão torna-se $\alpha = \min\left(1, \frac{\pi(\theta') q(\theta)}{\pi(\theta) q(\theta')}\right)$.</li>
+            </ul>
+
+            <h2 id="amostrador-gibbs" class="subsection-title">5.7 O Amostrador de Gibbs (Gibbs Sampler)</h2>
+
+            <p>O Amostrador de Gibbs (Geman & Geman, 1984; Gelfand & Smith, 1990) é um caso particular altamente eficiente do algoritmo de Metropolis-Hastings quando o vetor paramétrico $\boldsymbol{\theta} = (\theta_1, \dots, \theta_d)'$ possui <strong>distribuições condicionais completas (full conditionals)</strong> com formas analíticas conhecidas das quais é fácil simular diretamente.</p>
+
+            <div class="callout callout-def">
+                <div class="callout-title">Definição: Distribuição Condicional Completa</div>
+                A distribuição condicional completa da $j$-ésima componente dado o restante do vetor $\boldsymbol{\theta}_{-j} = (\theta_1, \dots, \theta_{j-1}, \theta_{j+1}, \dots, \theta_d)'$ e os dados $x$ é dada por:
+                $$\pi(\theta_j \mid \boldsymbol{\theta}_{-j}, x) = \frac{p(\boldsymbol{\theta} \mid x)}{\int p(\boldsymbol{\theta} \mid x) \, d\theta_j} \propto p(x \mid \boldsymbol{\theta}) p(\boldsymbol{\theta})$$
+                Para extrair o núcleo de $\pi(\theta_j \mid \boldsymbol{\theta}_{-j})$, basta isolar no produto da verossimilhança pela priori todos os termos que contêm $\theta_j$, tratando as demais componentes como constantes fixas.
+            </div>
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Algoritmo e Prova de Aceitação Unitária do Gibbs</div>
+                <strong>Passo de Atualização Sistemática (iteração $t+1$):</strong>
+                $$\begin{aligned}
+                \theta_1^{(t+1)} &\sim \pi(\theta_1 \mid \theta_2^{(t)}, \theta_3^{(t)}, \dots, \theta_d^{(t)}, x) \\
+                \theta_2^{(t+1)} &\sim \pi(\theta_2 \mid \theta_1^{(t+1)}, \theta_3^{(t)}, \dots, \theta_d^{(t)}, x) \\
+                &\;\;\vdots \\
+                \theta_d^{(t+1)} &\sim \pi(\theta_d \mid \theta_1^{(t+1)}, \theta_2^{(t+1)}, \dots, \theta_{d-1}^{(t+1)}, x)
+                \end{aligned}$$
+                <strong>Por que o Amostrador de Gibbs sempre aceita o candidato com probabilidade 1?</strong><br>
+                Ao atualizar a componente $j$, o estado proposto é $\boldsymbol{\theta}' = (\theta_j', \boldsymbol{\theta}_{-j})$ e a densidade proposta é exatamente a condicional completa: $q(\boldsymbol{\theta}' \mid \boldsymbol{\theta}) = \pi(\theta_j' \mid \boldsymbol{\theta}_{-j})$. Inserindo na razão de Metropolis-Hastings:
+                $$\alpha = \frac{\pi(\boldsymbol{\theta}') q(\boldsymbol{\theta} \mid \boldsymbol{\theta}')}{\pi(\boldsymbol{\theta}) q(\boldsymbol{\theta}' \mid \boldsymbol{\theta})} = \frac{[\pi(\theta_j' \mid \boldsymbol{\theta}_{-j})\pi(\boldsymbol{\theta}_{-j})] \cdot \pi(\theta_j \mid \boldsymbol{\theta}_{-j})}{[\pi(\theta_j \mid \boldsymbol{\theta}_{-j})\pi(\boldsymbol{\theta}_{-j})] \cdot \pi(\theta_j' \mid \boldsymbol{\theta}_{-j})} = 1$$
+                Logo, $\alpha = \min(1, 1) = 1$. Não há rejeições no Amostrador de Gibbs.
+            </div>
+
+            <h2 id="rjmcmc" class="subsection-title">5.8 MCMC de Dimensão Variável (Reversible Jump MCMC — RJMCMC)</h2>
+
+            <p>O algoritmo Metropolis-Hastings clássico assume um espaço paramétrico $\Theta$ com dimensão estritamente fixa. No entanto, em problemas fundamentais de <strong>seleção de modelos concorrentes</strong> (e.g., comparar polinômios de graus distintos, número desconhecido de componentes em misturas ou seleção de variáveis preditoras), a dimensionalidade do vetor paramétrico $\boldsymbol{\theta}_k$ varia conforme o modelo $k \in \mathcal{M}$.</p>
+
+            <p>Peter Green (1995) introduziu o <strong>Reversible Jump MCMC (RJMCMC)</strong>, estendendo a inferência estocástica para o espaço conjunto de índices de modelos e parâmetros $\Omega = \bigcup_{k \in \mathcal{M}} (\{k\} \times \Theta_k)$.</p>
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Teorema: Correspondência Dimensional e a Razão de Aceitação de Green</div>
+                Suponha uma proposta de salto do modelo atual $(k, \boldsymbol{\theta})$ para um novo modelo $(k', \boldsymbol{\theta}')$, onde $\dim(\boldsymbol{\theta}) = d_k$ e $\dim(\boldsymbol{\theta}') = d_{k'}$, com $d_{k'} > d_k$.<br>
+                Para preservar a reversibilidade da cadeia de Markov entre espaços de topologias distintas:
+                <ol>
+                    <li>Gera-se um vetor de <strong>variáveis auxiliares</strong> $\mathbf{u} \sim q(\mathbf{u})$ de dimensão $d_{k'} - d_k$, igualando as dimensões: $\dim(\boldsymbol{\theta}, \mathbf{u}) = \dim(\boldsymbol{\theta}')$.</li>
+                    <li>O novo vetor paramétrico é obtido através de um difeomorfismo invertível determinístico: $\boldsymbol{\theta}' = g_{k \to k'}(\boldsymbol{\theta}, \mathbf{u})$.</li>
+                </ol>
+                A probabilidade de aceitação de Green incorpora o <strong>Determinante Jacobiano</strong> da transformação para compensar a distorção infinitesimal do volume:
+                $$\alpha = \min\left( 1, \; \underbrace{\frac{p(k', \boldsymbol{\theta}' \mid x)}{p(k, \boldsymbol{\theta} \mid x)}}_{\text{Razão a Posteriori}} \times \underbrace{\frac{r(k' \to k)}{r(k \to k') q(\mathbf{u})}}_{\text{Razão de Proposta}} \times \underbrace{\left| \det \frac{\partial g_{k \to k'}(\boldsymbol{\theta}, \mathbf{u})}{\partial (\boldsymbol{\theta}, \mathbf{u})} \right|}_{\text{Determinante Jacobiano}} \right)$$
+            </div>
+
+            <h2 id="diagnosticos-convergencia" class="subsection-title">5.9 Diagnósticos de Convergência de Cadeias de MCMC</h2>
+
+            <p>Uma cadeia de Markov gera realizações correlacionadas cuja distribuição só converge para a posteriori no limite assintótico ($t \to \infty$). É indispensável aplicar diagnósticos formais antes de utilizar as amostras simuladas para inferência:</p>
+
+            <ul>
+                <li><strong>Período de Aquecimento (*Burn-in*):</strong> As primeiras $B$ iterações (e.g., $1000$ a $5000$) da cadeia são descartadas para eliminar a dependência dos valores iniciais arbitrários $\theta^{(0)}$ e garantir que a cadeia atingiu a região de alta densidade da distribuição estacionária.</li>
+                <li><strong>Autocorrelação Serial e Desbaste (*Thinning*):</strong> A dependência temporal entre estados sucessivos $\rho_k = \text{Corr}(\theta^{(t)}, \theta^{(t+k)})$ inflaciona a variância das médias de Monte Carlo. O desbaste consiste em reter apenas a cada $k$-ésimo elemento gerado, reduzindo a dependência serial.</li>
+                <li><strong>Tamanho Amostral Efetivo ($ESS$ — Effective Sample Size):</strong> Estima o número equivalente de observações <em>independentes e não correlacionadas</em> contidas na cadeia de tamanho total $N$:
+                $$ESS = \frac{N}{1 + 2 \sum_{k=1}^\infty \rho_k}$$
+                Recomenda-se comumente $ESS \ge 400$ para inferências estáveis de momentos e caudas.</li>
+                <li><strong>Diagnóstico de Gelman & Rubin ($\hat{R}$ — Potential Scale Reduction Factor):</strong> Executa-se $M \ge 3$ cadeias paralelas com valores iniciais dispersos (*overdispersed*). Compara-se a variância média dentro de cada cadeia ($W$) com a variância entre as médias das cadeias ($B$):
+                $$\hat{\sigma}^2 = \frac{N-1}{N} W + \frac{1}{N} B \implies \hat{R} = \sqrt{\frac{\hat{\sigma}^2}{W}}$$
+                Se as cadeias convergiram para o mesmo alvo estacionário, $\hat{R} \to 1$. Considera-se em geral que valores $\hat{R} < 1.05$ indicam convergência satisfatória.</li>
+                <li><strong>Inspeção Visual de Traços (*Trace plots*):</strong> O gráfico da trajetória temporal das amostras deve assemelhar-se a uma "lagarta peluda" (*fuzzy caterpillar*), transitando livre e rapidamente por todo o suporte sem travamentos ou tendências lineares lentas.</li>
+            </ul>
+
+            <!-- ========================================================================= -->
+            <!-- CAPÍTULO 6: MODELOS LINEARES E ANOVA                                      -->
+            <!-- ========================================================================= -->
+            <h1 id="regressao-linear" class="section-title">6. Modelos Lineares e ANOVA</h1>
+
+            <h2 class="subsection-title">6.1 Modelo de Regressão Linear Múltipla Normal</h2>
+
+            <p>Seja o modelo linear clássico em notação matricial padrão:</p>
+            $$\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\epsilon}, \quad \boldsymbol{\epsilon} \sim N_n\left(\mathbf{0}, \; \phi^{-1} \mathbf{I}_n\right)$$
+            <p>onde $\mathbf{y}$ é o vetor $n \times 1$ de respostas, $\mathbf{X}$ é a matriz de planejamento de posto completo $n \times p$, $\boldsymbol{\beta}$ é o vetor $p \times 1$ de coeficientes e $\phi = \sigma^{-2}$ é o parâmetro de precisão dos erros residuais.</p>
+            <p>A função de verossimilhança matricial expressa-se por:</p>
+            $$l(\boldsymbol{\beta}, \phi; \mathbf{y}) \propto \phi^{n/2} \exp\left\{ -\frac{\phi}{2} (\mathbf{y} - \mathbf{X}\boldsymbol{\beta})'(\mathbf{y} - \mathbf{X}\boldsymbol{\beta}) \right\}$$
+            <p>Completando quadrados em torno do estimador clássico de Mínimos Quadrados Ordinários $\hat{\boldsymbol{\beta}} = (\mathbf{X}'\mathbf{X})^{-1}\mathbf{X}'\mathbf{y}$:</p>
+            $$(\mathbf{y} - \mathbf{X}\boldsymbol{\beta})'(\mathbf{y} - \mathbf{X}\boldsymbol{\beta}) = (\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}})'(\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}) + (\boldsymbol{\beta} - \hat{\boldsymbol{\beta}})'\mathbf{X}'\mathbf{X}(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}}) = (n-p)s^2 + (\boldsymbol{\beta} - \hat{\boldsymbol{\beta}})'\mathbf{X}'\mathbf{X}(\boldsymbol{\beta} - \hat{\boldsymbol{\beta}})$$
+            <p>onde $s^2 = \frac{1}{n-p}(\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}})'(\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}})$ é a variância residual amostral.</p>
+
+            <h3 class="subsubsection-title">Priori Conjugada Normal-Gama Multivariada</h3>
+            <p>Especifica-se a priori conjunta condicional:</p>
+            $$\boldsymbol{\beta} \mid \phi \sim N_p\left(\mathbf{b}_0, \; (\phi \mathbf{V}_0)^{-1}\right) \quad \text{e} \quad \phi \sim \text{Gama}\left(\frac{\nu_0}{2}, \; \frac{\nu_0 s_0^2}{2}\right)$$
+            <div class="callout callout-theo">
+                <div class="callout-title">Teorema: Posteriori Conjugada do Modelo Linear</div>
+                A distribuição a posteriori conjunta continua pertencendo à família Normal-Gama:
+                $$\boldsymbol{\beta} \mid \phi, \mathbf{y} \sim N_p\left(\mathbf{b}_1, \; (\phi \mathbf{V}_1)^{-1}\right) \quad \text{e} \quad \phi \mid \mathbf{y} \sim \text{Gama}\left(\frac{\nu_1}{2}, \; \frac{\nu_1 s_1^2}{2}\right)$$
+                onde os parâmetros são atualizados analiticamente por:
+                $$\begin{aligned}
+                \mathbf{V}_1 &= \mathbf{V}_0 + \mathbf{X}'\mathbf{X} \\
+                \mathbf{b}_1 &= \mathbf{V}_1^{-1} \left( \mathbf{V}_0 \mathbf{b}_0 + \mathbf{X}'\mathbf{X} \hat{\boldsymbol{\beta}} \right) \\
+                \nu_1 &= \nu_0 + n \\
+                \nu_1 s_1^2 &= \nu_0 s_0^2 + (n-p)s^2 + (\mathbf{b}_0 - \hat{\boldsymbol{\beta}})' (\mathbf{V}_0^{-1} + (\mathbf{X}'\mathbf{X})^{-1})^{-1} (\mathbf{b}_0 - \hat{\boldsymbol{\beta}})
+                \end{aligned}$$
+                A distribuição marginal a posteriori dos coeficientes de regressão $\boldsymbol{\beta}$ é uma <strong>distribuição $t$ de Student multivariada</strong>:
+                $$\boldsymbol{\beta} \mid \mathbf{y} \sim t_{\nu_1}\left(\mathbf{b}_1, \; s_1^2 \mathbf{V}_1^{-1}\right)$$
+            </div>
+
+            <h3 class="subsubsection-title">Análise com a Priori Não Informativa de Jeffreys</h3>
+            <p>Se adotamos a priori imprópria não informativa padrão $p(\boldsymbol{\beta}, \phi) \propto \phi^{-1}$ (equivalente a $p(\boldsymbol{\beta}, \sigma^2) \propto \sigma^{-2}$), a posteriori marginal resulta rigorosamente em:</p>
+            $$\boldsymbol{\beta} \mid \mathbf{y} \sim t_{n-p}\left(\hat{\boldsymbol{\beta}}_{\text{MQO}}, \; s^2 (\mathbf{X}'\mathbf{X})^{-1}\right)$$
+            <p>Isso estabelece uma ponte fascinante entre as duas escolas: <em>numericamente</em>, as estimativas pontuais bayesianas (média a posteriori) e os intervalos de credibilidade coincidem com as estimativas clássicas de Mínimos Quadrados. No entanto, <em>epistemologicamente</em>, a conclusão bayesiana é genuinamente probabilística sobre os coeficientes reais da população.</p>
+
+            <h2 id="anova-bayesiana" class="subsection-title">6.2 Análise de Variância (ANOVA) com 1 Fator de Classificação</h2>
+
+            <p>O modelo de ANOVA com um fator de classificação avalia a igualdade de médias entre $p$ grupos experimentais independentes:</p>
+            $$y_{ij} = \mu_j + \epsilon_{ij}, \quad \epsilon_{ij} \sim N\left(0, \; \sigma^2\right), \quad i=1,\dots,n_j, \quad j=1,\dots,p$$
+            <p>onde $y_{ij}$ é a $i$-ésima observação no $j$-ésimo grupo de tamanho $n_j$, com tamanho amostral total $N = \sum_{j=1}^p n_j$.</p>
+            <p>Na formulação matricial $\mathbf{y} = \mathbf{X}\boldsymbol{\mu} + \boldsymbol{\epsilon}$, a matriz de delineamento $\mathbf{X}$ é composta por colunas indicadoras estruturadas em blocos, resultando em uma <strong>matriz cruzada diagonal</strong>:</p>
+            $$\mathbf{X}'\mathbf{X} = \text{diag}(n_1, n_2, \dots, n_p)$$
+
+            <div class="callout callout-theo">
+                <div class="callout-title">Posteriori dos Efeitos de Grupo e Contrastes Bayesianos</div>
+                Sob a priori de referência não informativa $p(\boldsymbol{\mu}, \sigma^2) \propto \sigma^{-2}$, as médias condicionadas à variância são independentes a posteriori:
+                $$\mu_j \mid \sigma^2, \mathbf{y} \sim N\left(\bar{y}_j, \; \frac{\sigma^2}{n_j}\right), \quad j=1,\dots,p$$
+                Marginalmente, a distribuição conjunta é uma $t$ multivariada independente, e cada média de grupo obedece a:
+                $$\mu_j \mid \mathbf{y} \sim t_{N-p}\left(\bar{y}_j, \; \frac{s^2}{n_j}\right)$$
+                onde $s^2 = \frac{1}{N-p} \sum_{j=1}^p \sum_{i=1}^{n_j} (y_{ij} - \bar{y}_j)^2$ é a variância residual pooled.<br><br>
+                <strong>Inferência sobre Contrastes Lineares:</strong> Seja um contraste de interesse entre tratamentos $\psi = \sum_{j=1}^p c_j \mu_j$, sujeito à restrição $\sum_{j=1}^p c_j = 0$ (e.g., a diferença simples entre dois tratamentos $\mu_1 - \mu_2$). A posteriori exata do contraste é:
+                $$\psi \mid \mathbf{y} \sim t_{N-p}\left(\sum_{j=1}^p c_j \bar{y}_j, \; s^2 \sum_{j=1}^p \frac{c_j^2}{n_j}\right)$$
+                Isso viabiliza o cálculo exato de probabilidades diretas como $P(\mu_1 > \mu_2 \mid \mathbf{y})$, superando os testes $p$-valor de Tukey e Scheffé da inferência clássica.
+            </div>
+
+            <!-- RODAPÉ FINAL -->
+            <footer class="author-footer">
+                <p>Notas de Estudo em Inferência Estatística Bayesiana</p>
+                <p>Elaborado por <strong>Luca Ferreira Barboza</strong></p>
+                <p style="font-size: 0.8rem; margin-top: 8px;">Compilado com MathJax 3 &bull; CSS3 Grid/Flexbox &bull; Padrão Acadêmico</p>
+            </footer>
+
+        </main>
+    </div>
+
+</body>
+</html>
